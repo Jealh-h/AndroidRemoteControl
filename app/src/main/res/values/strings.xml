@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">智能遥控器</string>
+    <string name="button_label_toast">Toast</string>
+    <string name="button_label_count">Count</string>
+    <string name="count_initial_value">0</string>
+    <string name="toast_message">Hello Toast!</string>
+    <string name="title_activity_nav_page">NavPage</string>
+    <string name="title_home">首页</string>
+    <string name="title_dashboard">添加</string>
+    <string name="title_setting">设置</string>
+</resources>
