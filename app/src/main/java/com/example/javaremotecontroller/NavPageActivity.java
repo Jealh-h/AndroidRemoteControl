@@ -33,12 +33,8 @@ public class NavPageActivity extends AppCompatActivity {
                 .build();
         // 建立fragment容器的控制器，这个容器就是页面的上的fragment容器
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_nav_page);
-        // 建立fragment容器的控制器，这个容器就是页面的上的fragment容器
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
-    }
-
-    public void onWiFiClick() {
     }
 
 }
