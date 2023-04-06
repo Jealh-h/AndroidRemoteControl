@@ -10,7 +10,6 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.example.javaremotecontroller.adapter.FragmentPageAdapter;
-import com.example.javaremotecontroller.adapter.ViewPagerAdapter;
 import com.example.javaremotecontroller.fragments.BlankFragment;
 
 import java.util.ArrayList;
@@ -19,9 +18,16 @@ import java.util.ArrayList;
  * 底部导航按钮枚举
  */
 enum BottomNavMenu {
-    HOME,
-    DASHBOARD,
-    PERSON
+    HOME(0),
+    DASHBOARD(1),
+    PERSON(2);
+    private final int value;
+    private BottomNavMenu(int value) {
+        this.value = value;
+    }
+    public int valueOf() {
+        return this.value;
+    }
 }
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -58,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-//                changeTab(position);
+                changeTab(position);
                 Log.e("TAG", "onPageSelected:" + position );
             }
 
@@ -84,35 +90,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void changeTab(int position) {
+        clearBottomNavBtnState();
         switch (position) {
+            case R.id.bottom_nav_home_btn:
             case 0:
+                bottomNavHome.setSelected(true);
+                viewPager.setCurrentItem(BottomNavMenu.HOME.valueOf());
                 break;
+            case R.id.bottom_nav_dashboard_btn:
             case 1:
+                bottomNavDashboard.setSelected(true);
+                viewPager.setCurrentItem(BottomNavMenu.DASHBOARD.valueOf());
                 break;
+            case R.id.bottom_nav_mine_btn:
             case 2:
-                break;
-            default:
+                bottomNavMine.setSelected(true);
+                viewPager.setCurrentItem(BottomNavMenu.PERSON.valueOf());
                 break;
         }
     }
 
     @Override
     public void onClick(View v) {
-        clearBottomNavBtnState();
-        switch (v.getId()) {
-            case R.id.bottom_nav_home_btn:
-                bottomNavHome.setSelected(true);
-                viewPager.setCurrentItem(BottomNavMenu.HOME.ordinal());
-                break;
-            case R.id.bottom_nav_dashboard_btn:
-                bottomNavDashboard.setSelected(true);
-                viewPager.setCurrentItem(BottomNavMenu.DASHBOARD.ordinal());
-                break;
-            case R.id.bottom_nav_mine_btn:
-                bottomNavMine.setSelected(true);
-                viewPager.setCurrentItem(BottomNavMenu.PERSON.ordinal());
-                break;
-        }
+        changeTab(v.getId());
     }
 
     private void clearBottomNavBtnState() {
