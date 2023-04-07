@@ -1,18 +1,23 @@
 package com.example.javaremotecontroller;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.example.javaremotecontroller.adapter.FragmentPageAdapter;
 import com.example.javaremotecontroller.fragments.BlankFragment;
+import com.example.javaremotecontroller.util.util;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 底部导航按钮枚举
@@ -35,6 +40,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ViewPager2 viewPager;
     private FragmentPageAdapter viewPagerAdapter;
     private ImageView bottomNavHome, bottomNavDashboard, bottomNavMine;
+    private LinearLayout bottomNavHomeWrapper, bottomNavDashboardWrapper, bottomNavMineWrapper;
+    private CardView indicator;
+    private List<Integer> offsetArray = new ArrayList<>();
+    private Integer currentIndex = 0;
+    private Integer innerPadding  = 8;
+    private static String TAG = "DEBUG";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +53,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         initPage();
         initBottomNav();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if(hasFocus){
+            offsetArray.add(innerPadding);
+            offsetArray.add(bottomNavHomeWrapper.getWidth());
+            offsetArray.add(bottomNavHomeWrapper.getWidth() +
+                    bottomNavDashboardWrapper.getWidth());
+            CardView.LayoutParams lp = (CardView.LayoutParams) indicator.getLayoutParams();
+            lp.width = bottomNavHomeWrapper.getWidth()  - util.dpToPx(innerPadding * 2, this);
+            Log.e(TAG, "onWindowFocusChanged: " + bottomNavHomeWrapper.getWidth() + lp.width);
+            indicator.setLayoutParams(lp);
+        }
     }
 
     private void initPage() {
@@ -58,14 +84,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 super.onPageScrolled(position, positionOffset, positionOffsetPixels);
-                Log.e("TAG", "onPageScrolled:" + position );
             }
 
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 changeTab(position);
-                Log.e("TAG", "onPageSelected:" + position );
+                Log.e("TAG", "onPageSelected:>>>" + position );
             }
 
             @Override
@@ -74,17 +99,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Log.e("TAG", "onPageScrollStateChanged:" + state );
             }
         });
-        Log.d("MainActivity", "Hello world");
     }
 
     private void initBottomNav() {
+        indicator = findViewById(R.id.bottom_nav_indicator);
         bottomNavHome = findViewById(R.id.bottom_nav_home_btn);
         bottomNavDashboard = findViewById(R.id.bottom_nav_dashboard_btn);
         bottomNavMine = findViewById(R.id.bottom_nav_mine_btn);
+
+        bottomNavHomeWrapper = findViewById(R.id.bottom_nav_home_wrapper);
+        bottomNavDashboardWrapper = findViewById(R.id.bottom_nav_dashboard_wrapper);
+        bottomNavMineWrapper = findViewById(R.id.bottom_nav_personal_wrapper);
+
         // set bottom btn click event listener
-        bottomNavHome.setOnClickListener(this);
-        bottomNavDashboard.setOnClickListener(this);
-        bottomNavMine.setOnClickListener(this);
+        bottomNavHomeWrapper.setOnClickListener(this);
+        bottomNavDashboardWrapper.setOnClickListener(this);
+        bottomNavMineWrapper.setOnClickListener(this);
+
         // set initial active bottom btn
         bottomNavHome.setSelected(true);
     }
@@ -92,32 +123,62 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void changeTab(int position) {
         clearBottomNavBtnState();
         switch (position) {
-            case R.id.bottom_nav_home_btn:
+            case R.id.bottom_nav_home_wrapper:
             case 0:
+                startIndicatorTranslate(0);
                 bottomNavHome.setSelected(true);
                 viewPager.setCurrentItem(BottomNavMenu.HOME.valueOf());
                 break;
-            case R.id.bottom_nav_dashboard_btn:
+            case R.id.bottom_nav_dashboard_wrapper:
             case 1:
+                startIndicatorTranslate(1);
                 bottomNavDashboard.setSelected(true);
                 viewPager.setCurrentItem(BottomNavMenu.DASHBOARD.valueOf());
                 break;
-            case R.id.bottom_nav_mine_btn:
+            case R.id.bottom_nav_personal_wrapper:
             case 2:
+                startIndicatorTranslate(2);
                 bottomNavMine.setSelected(true);
                 viewPager.setCurrentItem(BottomNavMenu.PERSON.valueOf());
+                break;
+            default:
                 break;
         }
     }
 
     @Override
     public void onClick(View v) {
-        changeTab(v.getId());
+        // 会触发 viewPager 的 onPageSelected
+        switch (v.getId()){
+            case R.id.bottom_nav_home_wrapper:
+                viewPager.setCurrentItem(BottomNavMenu.HOME.valueOf());
+                break;
+            case R.id.bottom_nav_dashboard_wrapper:
+                viewPager.setCurrentItem(BottomNavMenu.DASHBOARD.valueOf());
+                break;
+            case R.id.bottom_nav_personal_wrapper:
+                viewPager.setCurrentItem(BottomNavMenu.PERSON.valueOf());
+                break;
+            default:
+                break;
+        }
     }
 
     private void clearBottomNavBtnState() {
         bottomNavMine.setSelected(false);
         bottomNavHome.setSelected(false);
         bottomNavDashboard.setSelected(false);
+    }
+
+    private void startIndicatorTranslate(int nextIndex) {
+        if(offsetArray.size() == 0){
+            return;
+        }
+        Log.e(TAG, "startIndicatorTranslate: "+nextIndex+currentIndex );
+        TranslateAnimation animation = new TranslateAnimation(offsetArray.get(currentIndex),offsetArray.get(nextIndex),0,0);
+        animation.setFillAfter(true);
+        animation.setDuration(200);
+        indicator.startAnimation(animation);
+        currentIndex = nextIndex;
     }
 }
