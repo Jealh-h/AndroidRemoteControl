@@ -5,15 +5,19 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.example.javaremotecontroller.adapter.FragmentPageAdapter;
 import com.example.javaremotecontroller.fragments.BlankFragment;
+import com.example.javaremotecontroller.ui.home.HomeFragment;
 import com.example.javaremotecontroller.util.util;
 
 import java.util.ArrayList;
@@ -53,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         initPage();
         initBottomNav();
+        immersiveStatusBar();
     }
 
     @Override
@@ -73,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void initPage() {
         viewPager = findViewById(R.id.view_pager);
         ArrayList<Fragment> fragmentList = new ArrayList<>();
-        fragmentList.add(BlankFragment.newInstance("p1"));
+        fragmentList.add(new HomeFragment());
         fragmentList.add(BlankFragment.newInstance("p3"));
         fragmentList.add(BlankFragment.newInstance("p5"));
         // 定义 viewpager adapter
@@ -180,5 +185,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         animation.setDuration(200);
         indicator.startAnimation(animation);
         currentIndex = nextIndex;
+    }
+
+    private void immersiveStatusBar() {
+        this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        this.getWindow().setStatusBarColor(Color.TRANSPARENT);
+        this.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        this.getWindow()
+                .getDecorView()
+                .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // 状态栏的图标显示为黑色
+            this.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+        }
     }
 }
