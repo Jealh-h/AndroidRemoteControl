@@ -1,47 +1,61 @@
 package com.example.javaremotecontroller.ui.home;
 
+import android.Manifest;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.net.wifi.WifiInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.Button;
-import android.widget.ImageView;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.javaremotecontroller.MainActivity;
 import com.example.javaremotecontroller.R;
+import com.example.javaremotecontroller.adapter.BlueToothDeviceListAdapter;
 import com.example.javaremotecontroller.communication.BlueToothHelper;
 import com.example.javaremotecontroller.communication.InfraredHelper;
+import com.example.javaremotecontroller.communication.WiFiHelper;
 import com.example.javaremotecontroller.databinding.FragmentHomeBinding;
+
+import java.util.ArrayList;
+import java.util.Set;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements CompoundButton.OnCheckedChangeListener {
 
     private HomeViewModel homeViewModel;
     private FragmentHomeBinding binding;
     private InfraredHelper infraredHelper = new InfraredHelper();
     private BlueToothHelper blueToothHelper;
+    private WiFiHelper wifiManager;
     private NotificationManager notificationManager;
     private Notification notification;
+    private TextView wifiInfoTextView;
+    RecyclerView recyclerView;
+    private ArrayList<BluetoothDevice> bluetoothDeviceArrayList;
+    private String TAG = "DEBUG";
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -51,46 +65,33 @@ public class HomeFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
-        blueToothHelper = new BlueToothHelper(getActivity());
+        // 获取连接过的蓝牙设备
+        initBlueToothDevice();
 
-        final TextView textView = binding.textHome;
-        final Button wifiButton = root.findViewById(R.id.button_wifi);
-        final Button infraredButton = root.findViewById(R.id.button_infrared);
-        final Button blueToothButton = root.findViewById(R.id.button_bluetooth);
-        final ImageView imageView = root.findViewById(R.id.image_view);
+        blueToothHelper = new BlueToothHelper();
+        wifiManager = new WiFiHelper(getActivity());
+        // 蓝牙设备列表
+        recyclerView = root.findViewById(R.id.blue_tooth_device_recycler_view);
+        BlueToothDeviceListAdapter blueToothDeviceListAdapter =
+                new BlueToothDeviceListAdapter(getActivity(),
+                        bluetoothDeviceArrayList);
+        recyclerView.setAdapter(blueToothDeviceListAdapter);
 
-        homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
+        final Switch wifiSwitch = root.findViewById(R.id.wifi_switch_home);
+        wifiInfoTextView = root.findViewById(R.id.wifi_info);
 
-        // 給 wifi button 綁定事件
-        wifiButton.setOnClickListener(onWiFiClick());
-        // 紅外
-        infraredButton.setOnClickListener(onInfraredClick());
-        // 蓝牙
-        blueToothButton.setOnClickListener(onBlueToothClick());
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // 加载 animation xml
-                Animation animation = AnimationUtils.loadAnimation(getActivity(),R.anim.alpha);
-                imageView.startAnimation(animation);
-            }
-        });
+        wifiSwitch.setOnCheckedChangeListener(this);
 
         notificationManager = (NotificationManager) getActivity().getSystemService(NOTIFICATION_SERVICE);
 
         // 大于 安卓 8
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            NotificationChannel channel = new  NotificationChannel("cid","通知",NotificationManager.IMPORTANCE_HIGH);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel("cid", "通知", NotificationManager.IMPORTANCE_HIGH);
             notificationManager.createNotificationChannel(channel);
         }
 
         Intent intent = new Intent(getActivity(), MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(getActivity(),0, intent,PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent pendingIntent = PendingIntent.getActivity(getActivity(), 0, intent, PendingIntent.FLAG_IMMUTABLE);
 
         notification = new NotificationCompat.Builder(getActivity(), "cid")
                 .setContentTitle("标题")
@@ -108,33 +109,95 @@ public class HomeFragment extends Fragment {
         binding = null;
     }
 
-    public View.OnClickListener onWiFiClick() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.v("打印：","look");
-                Toast toast = Toast.makeText(getActivity(), R.string.toast_message,Toast.LENGTH_SHORT);
-                toast.show();
-            }
-        };
+    private void initBlueToothDevice() {
+//        // 不支持蓝牙
+//        if (!BlueToothHelper.getInstance().isSupport()) {
+//            Toast.makeText(getActivity(), "当前设备不支持蓝牙", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+//        BlueToothHelper.getInstance().open();
+//        Set<BluetoothDevice> mBondedList = BlueToothHelper.getInstance().getBondedDevices();
+//        Log.e(TAG, "initBlueToothDevice: " + mBondedList.toString());
+//        for (BluetoothDevice device : mBondedList) {
+//            bluetoothDeviceArrayList.add(device);
+//        }
+        BtFoundReceiver mBtFoundReceiver = new BtFoundReceiver();
+        IntentFilter filter = new IntentFilter();
+        //搜索结果
+        filter.addAction(BluetoothDevice.ACTION_FOUND);
+        //搜索完成
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+        getActivity().registerReceiver(mBtFoundReceiver, filter);
+
+        if (!BlueToothHelper.getInstance().isSupport()) {
+            Toast.makeText(getActivity(), "当前设备不支持蓝牙", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        BlueToothHelper.getInstance().open();
+
+        requestPermission();
     }
 
-    public View.OnClickListener onInfraredClick() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                infraredHelper.sendSignal(getActivity());
+    private void requestPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1001);
+            } else {
+                startDiscovery();
             }
-        };
+        } else {
+            startDiscovery();
+        }
     }
 
-    public View.OnClickListener onBlueToothClick() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                infraredHelper.sendSignal(getActivity());
-                notificationManager.notify(1, notification);
+    private void startDiscovery() {
+        BlueToothHelper.getInstance().startDiscovery();
+    }
+
+    @Override
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        StringBuffer sb = new StringBuffer();
+        sb.append("wifi信息:\n");
+        sb.append("mac地址:" + wifiInfo.getMacAddress() + "\n");
+        sb.append("接入点的BSSID：" + wifiInfo.getBSSID() + "\n");
+        sb.append("IP地址（int）：" + wifiInfo.getIpAddress() + "\n");
+        wifiInfoTextView.setText(sb);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        for (int i = 0; i < permissions.length; i++) {
+            if (permissions[i].equals(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                int result = grantResults[i];
+                if (result == PackageManager.PERMISSION_GRANTED) {
+                    startDiscovery();
+                } else {
+                    requestPermission();
+                }
             }
-        };
+        }
+    }
+
+    class BtFoundReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                if (device != null) {
+                    //判断是否配对过
+                    if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
+                        bluetoothDeviceArrayList.add(device);
+                        Log.e(TAG, "onReceive: " + device.getName() );
+                    }
+                }
+            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+
+            }
+        }
     }
 }
+

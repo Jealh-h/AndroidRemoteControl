@@ -17,7 +17,9 @@ import android.widget.LinearLayout;
 
 import com.example.javaremotecontroller.adapter.FragmentPageAdapter;
 import com.example.javaremotecontroller.fragments.BlankFragment;
+import com.example.javaremotecontroller.ui.dashboard.DashboardFragment;
 import com.example.javaremotecontroller.ui.home.HomeFragment;
+import com.example.javaremotecontroller.ui.notifications.NotificationsFragment;
 import com.example.javaremotecontroller.util.util;
 
 import java.util.ArrayList;
@@ -79,8 +81,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         viewPager = findViewById(R.id.view_pager);
         ArrayList<Fragment> fragmentList = new ArrayList<>();
         fragmentList.add(new HomeFragment());
-        fragmentList.add(BlankFragment.newInstance("p3"));
-        fragmentList.add(BlankFragment.newInstance("p5"));
+        fragmentList.add(new DashboardFragment());
+        fragmentList.add(new NotificationsFragment());
         // 定义 viewpager adapter
         viewPagerAdapter = new FragmentPageAdapter(getSupportFragmentManager(), getLifecycle(), fragmentList);
         // 设置 adapter
@@ -180,7 +182,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             return;
         }
         Log.e(TAG, "startIndicatorTranslate: "+nextIndex+currentIndex );
-        TranslateAnimation animation = new TranslateAnimation(offsetArray.get(currentIndex),offsetArray.get(nextIndex),0,0);
+        TranslateAnimation animation = new TranslateAnimation(offsetArray.get(currentIndex),
+                offsetArray.get(nextIndex),0,0);
         animation.setFillAfter(true);
         animation.setDuration(200);
         indicator.startAnimation(animation);

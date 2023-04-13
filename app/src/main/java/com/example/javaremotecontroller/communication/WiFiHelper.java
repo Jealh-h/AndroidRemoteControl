@@ -1,5 +1,12 @@
 package com.example.javaremotecontroller.communication;
+import android.app.Service;
+import android.content.Context;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.util.Log;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -8,7 +15,53 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class WiFiHelper {
+    private WifiManager wifiManager;
+    private Context context;
 
+    public WiFiHelper(Context ctx) {
+        context = ctx;
+        wifiManager = (WifiManager) ctx.getSystemService(Service.WIFI_SERVICE);
+    }
+
+    public boolean setWifiEnabled() {
+        return wifiManager.setWifiEnabled(true);
+    }
+
+    public boolean setWifiDisabled() {
+        // android api 28 及以下有效
+        if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.P){
+            return wifiManager.setWifiEnabled(false);
+        }else {
+            Toast.makeText(context, "wifi 未打开，请打开 wifi", Toast.LENGTH_LONG).show();
+            return false;
+        }
+    }
+
+    /**
+     * wifi 开关状态
+     * @return
+     */
+    public int getWifiState() {
+        return wifiManager.getWifiState();
+    }
+
+    /**
+     * wifi 是否连接
+     * @return
+     */
+    public boolean isWifiConnect() {
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        Log.e("DEBUG", "isWifiConnect: " + wifiInfo.toString());
+        return wifiInfo == null;
+    }
+
+    /**
+     * 获取连接信息
+     * @return WifiInfo
+     */
+    public WifiInfo getConnectionInfo() {
+        return wifiManager.getConnectionInfo();
+    }
 }
 
 class HttpRequestTask extends AsyncTask<String, Void, String> {
