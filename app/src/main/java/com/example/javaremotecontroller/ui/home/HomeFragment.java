@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.javaremotecontroller.MainActivity;
@@ -54,7 +55,7 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
     private Notification notification;
     private TextView wifiInfoTextView;
     RecyclerView recyclerView;
-    private ArrayList<BluetoothDevice> bluetoothDeviceArrayList;
+    private ArrayList<BluetoothDevice> bluetoothDeviceArrayList = new ArrayList<>();
     private String TAG = "DEBUG";
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -76,6 +77,7 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
                 new BlueToothDeviceListAdapter(getActivity(),
                         bluetoothDeviceArrayList);
         recyclerView.setAdapter(blueToothDeviceListAdapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
         final Switch wifiSwitch = root.findViewById(R.id.wifi_switch_home);
         wifiInfoTextView = root.findViewById(R.id.wifi_info);
@@ -111,52 +113,55 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
 
     private void initBlueToothDevice() {
 //        // 不支持蓝牙
-//        if (!BlueToothHelper.getInstance().isSupport()) {
-//            Toast.makeText(getActivity(), "当前设备不支持蓝牙", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//        BlueToothHelper.getInstance().open();
-//        Set<BluetoothDevice> mBondedList = BlueToothHelper.getInstance().getBondedDevices();
-//        Log.e(TAG, "initBlueToothDevice: " + mBondedList.toString());
-//        for (BluetoothDevice device : mBondedList) {
-//            bluetoothDeviceArrayList.add(device);
-//        }
-        BtFoundReceiver mBtFoundReceiver = new BtFoundReceiver();
-        IntentFilter filter = new IntentFilter();
-        //搜索结果
-        filter.addAction(BluetoothDevice.ACTION_FOUND);
-        //搜索完成
-        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        getActivity().registerReceiver(mBtFoundReceiver, filter);
-
         if (!BlueToothHelper.getInstance().isSupport()) {
             Toast.makeText(getActivity(), "当前设备不支持蓝牙", Toast.LENGTH_SHORT).show();
             return;
         }
-
         BlueToothHelper.getInstance().open();
-
-        requestPermission();
+        Set<BluetoothDevice> mBondedList = BlueToothHelper.getInstance().getBondedDevices();
+        for (BluetoothDevice device : mBondedList) {
+            Log.e(TAG, "initBlueToothDevice: " + device.getName());
+            bluetoothDeviceArrayList.add(device);
+        }
+//        BtFoundReceiver mBtFoundReceiver = new BtFoundReceiver();
+//        IntentFilter filter = new IntentFilter();
+//        //搜索结果
+//        filter.addAction(BluetoothDevice.ACTION_FOUND);
+//        //搜索完成
+//        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+//        getActivity().registerReceiver(mBtFoundReceiver, filter);
+//
+//        if (!BlueToothHelper.getInstance().isSupport()) {
+//            Toast.makeText(getActivity(), "当前设备不支持蓝牙", Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+//
+//        BlueToothHelper.getInstance().open();
+//
+//        requestPermission();
     }
 
     private void requestPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1001);
-            } else {
-                startDiscovery();
-            }
-        } else {
-            startDiscovery();
-        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1001);
+//            } else {
+//                startDiscovery();
+//            }
+//        } else {
+//            startDiscovery();
+//        }
+        startDiscovery();
     }
 
     private void startDiscovery() {
-        BlueToothHelper.getInstance().startDiscovery();
+        Log.e(TAG, "startDiscovery: ");
+        BlueToothHelper.getInstance().startDiscovery(getActivity());
     }
 
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        blueToothHelper.open();
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         StringBuffer sb = new StringBuffer();
         sb.append("wifi信息:\n");
@@ -187,6 +192,7 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
             String action = intent.getAction();
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                Log.e(TAG, "onReceive: " + device.toString() );
                 if (device != null) {
                     //判断是否配对过
                     if (device.getBondState() != BluetoothDevice.BOND_BONDED) {

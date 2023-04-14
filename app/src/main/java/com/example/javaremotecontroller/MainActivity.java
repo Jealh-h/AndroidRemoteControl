@@ -97,13 +97,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
                 changeTab(position);
-                Log.e("TAG", "onPageSelected:>>>" + position );
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
                 super.onPageScrollStateChanged(state);
-                Log.e("TAG", "onPageScrollStateChanged:" + state );
             }
         });
     }
@@ -181,7 +179,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(offsetArray.size() == 0){
             return;
         }
-        Log.e(TAG, "startIndicatorTranslate: "+nextIndex+currentIndex );
         TranslateAnimation animation = new TranslateAnimation(offsetArray.get(currentIndex),
                 offsetArray.get(nextIndex),0,0);
         animation.setFillAfter(true);

@@ -5,6 +5,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.content.Intent;
+import android.util.Log;
+
 import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
@@ -35,6 +37,7 @@ public class BlueToothHelper {
      * @return
      */
     public boolean isSupport() {
+
         return mBluetoothAdapter != null;
     }
 
@@ -44,6 +47,7 @@ public class BlueToothHelper {
      * @return
      */
     public boolean isEnabled() {
+        assert(mBluetoothAdapter!=null);
         return mBluetoothAdapter.isEnabled();
     }
 
@@ -75,6 +79,7 @@ public class BlueToothHelper {
      * @return Set
      */
     public Set<BluetoothDevice> getBondedDevices() {
+
         return mBluetoothAdapter.getBondedDevices();
     }
 
@@ -87,13 +92,26 @@ public class BlueToothHelper {
         return mBluetoothAdapter.isDiscovering();
     }
 
+    public void enabledBluetooth(Activity activity) {
+        if(!mBluetoothAdapter.isEnabled()){
+            mBluetoothAdapter.enable();
+        }
+        if(mBluetoothAdapter.getScanMode()!=BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+            Intent discoveryIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+            discoveryIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+            activity.startActivity(discoveryIntent);
+        }
+
+    }
+
     /**
      * 开始搜索
      */
-    public void startDiscovery() {
-        if (!isDiscovering()) {
-            mBluetoothAdapter.startDiscovery();
+    public void startDiscovery(Activity activity) {
+        if (isDiscovering()) {
+            mBluetoothAdapter.cancelDiscovery();
         }
+        mBluetoothAdapter.startDiscovery();
     }
 
     /**
