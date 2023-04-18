@@ -10,8 +10,8 @@
     <uses-permission android:name="android.permission.TRANSMIT_IR" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -20,11 +20,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.JavaRemoteController">
+        <activity android:name=".AirConditionPanel"></activity>
+        <activity android:name=".BlueToothDeviceList" />
+        <activity
+            android:name=".BlueToothDeviceDetail"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_blue_tooth_device_detail"
+            android:theme="@style/Theme.JavaRemoteController.Fullscreen" />
         <activity
             android:name=".NavPageActivity"
-            android:label="@string/title_activity_nav_page">
-
-        </activity>
+            android:label="@string/title_activity_nav_page" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

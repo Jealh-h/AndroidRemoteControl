@@ -3,6 +3,8 @@ package com.example.javaremotecontroller.adapter;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,13 +13,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.javaremotecontroller.BlueToothDeviceDetail;
 import com.example.javaremotecontroller.R;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.function.Function;
 
 public class BlueToothDeviceListAdapter extends RecyclerView.Adapter<BlueToothDeviceListAdapter.MyViewHolder> implements View.OnClickListener {
 
@@ -59,6 +64,13 @@ public class BlueToothDeviceListAdapter extends RecyclerView.Adapter<BlueToothDe
     public void onClick(View v) {
         int position = recyclerView.getChildAdapterPosition(v);
         Toast.makeText(context, devicesList.get(position).getAddress(), Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(context, BlueToothDeviceDetail.class);
+        context.startActivity(intent);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void setOnItemClick(Function func) {
+        func.apply(1);
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {

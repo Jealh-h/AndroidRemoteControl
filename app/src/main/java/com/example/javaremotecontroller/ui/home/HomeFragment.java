@@ -25,12 +25,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.javaremotecontroller.BlueToothDeviceList;
 import com.example.javaremotecontroller.MainActivity;
 import com.example.javaremotecontroller.R;
 import com.example.javaremotecontroller.adapter.BlueToothDeviceListAdapter;
@@ -44,13 +46,13 @@ import java.util.Set;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
-public class HomeFragment extends Fragment implements CompoundButton.OnCheckedChangeListener {
+public class HomeFragment extends Fragment implements CompoundButton.OnCheckedChangeListener, View.OnClickListener {
 
     private HomeViewModel homeViewModel;
     private FragmentHomeBinding binding;
     private InfraredHelper infraredHelper = new InfraredHelper();
     private BlueToothHelper blueToothHelper;
-    private WiFiHelper wifiManager;
+    private WiFiHelper wifiHelper;
     private NotificationManager notificationManager;
     private Notification notification;
     private TextView wifiInfoTextView;
@@ -70,7 +72,7 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
         initBlueToothDevice();
 
         blueToothHelper = new BlueToothHelper();
-        wifiManager = new WiFiHelper(getActivity());
+        wifiHelper = new WiFiHelper(getActivity());
         // 蓝牙设备列表
         recyclerView = root.findViewById(R.id.blue_tooth_device_recycler_view);
         BlueToothDeviceListAdapter blueToothDeviceListAdapter =
@@ -101,6 +103,9 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
                 .setSmallIcon(R.drawable.ic_baseline_settings_24)
                 .setContentIntent(pendingIntent)
                 .build();
+
+        initWifiState();
+        initEvent();
 
         return root;
     }
@@ -162,13 +167,14 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         blueToothHelper.open();
-        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        WifiInfo wifiInfo = wifiHelper.getConnectionInfo();
         StringBuffer sb = new StringBuffer();
         sb.append("wifi信息:\n");
         sb.append("mac地址:" + wifiInfo.getMacAddress() + "\n");
+        sb.append("wifi名称::" + wifiInfo.getSSID() + "\n");
         sb.append("接入点的BSSID：" + wifiInfo.getBSSID() + "\n");
         sb.append("IP地址（int）：" + wifiInfo.getIpAddress() + "\n");
-        wifiInfoTextView.setText(sb);
+        wifiInfoTextView.setText(wifiInfo.toString());
     }
 
     @Override
@@ -182,6 +188,40 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
                     requestPermission();
                 }
             }
+        }
+    }
+
+    /**
+     * 初始化 wifi 连接状态文案
+     */
+    private void initWifiState() {
+        View root = binding.getRoot();
+        TextView wifiConnectState = root.findViewById(R.id.wifi_connect_state_text);
+        if(wifiHelper.isWifiConnect()) {
+            wifiConnectState.setText("已连接");
+        }else {
+            wifiConnectState.setText("未连接");
+        }
+    }
+
+    private void initEvent() {
+        View root = binding.getRoot();
+        CardView blueToothCard = root.findViewById(R.id.bluetooth_home_card_view);
+        blueToothCard.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.wifi_home_card_view:
+
+                break;
+            case R.id.bluetooth_home_card_view:
+                Intent intent = new Intent(getActivity(), BlueToothDeviceList.class);
+                startActivity(intent);
+                break;
+            default:
+                break;
         }
     }
 

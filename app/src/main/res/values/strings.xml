@@ -14,4 +14,7 @@
     <string name="home">首页</string>
     <string name="dashboard">菜单</string>
     <string name="personnel">个人中心</string>
+    <string name="title_activity_blue_tooth_device_detail">FullscreenActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
 </resources>

@@ -28,6 +28,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.javaremotecontroller.BlueToothDeviceDetail;
 import com.example.javaremotecontroller.R;
 import com.example.javaremotecontroller.adapter.BlueToothDeviceListAdapter;
 import com.example.javaremotecontroller.communication.BlueToothHelper;
@@ -62,13 +63,13 @@ public class DashboardFragment extends Fragment {
         recyclerView.setAdapter(mAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        final TextView textView = binding.textDashboard;
-        dashboardViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
-            }
-        });
+//        final TextView textView = binding.textDashboard;
+//        dashboardViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+//            @Override
+//            public void onChanged(@Nullable String s) {
+//                textView.setText(s);
+//            }
+//        });
 
         init();
 
@@ -79,9 +80,14 @@ public class DashboardFragment extends Fragment {
 //
 //                PopupWindow popupWindow = new PopupWindow(popupView, 100,100,true);
 //                popupWindow.showAsDropDown(v);
+
                 progressBar.setVisibility(View.VISIBLE);
                 mDeviceList.clear();
                 blueToothHelper.startDiscovery(getActivity());
+                Intent intent = new Intent(getActivity(), BlueToothDeviceDetail.class);
+                intent.putExtra("FROM_DASHBOARD", 1002);
+                getActivity().startActivity(intent);
+
             }
         });
         showDialogBtn.setOnClickListener(new View.OnClickListener() {
@@ -152,8 +158,11 @@ public class DashboardFragment extends Fragment {
                 }else {
                     Toast.makeText(getContext(),"Click on the device to start Chat", Toast.LENGTH_SHORT).show();
                 }
-            }
-            else if(BluetoothDevice.ACTION_FOUND.equals(action)) {
+            } else if(BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
+                // 已连接
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.ACTION_ACL_CONNECTED);
+                Log.e("TAG", "connected: " + device.getName());
+            } else if(BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 //找到一个添加一个
                 if(device.getBondState()!=BluetoothDevice.BOND_BONDED){

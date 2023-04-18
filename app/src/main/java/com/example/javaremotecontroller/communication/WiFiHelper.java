@@ -52,7 +52,7 @@ public class WiFiHelper {
     public boolean isWifiConnect() {
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         Log.e("DEBUG", "isWifiConnect: " + wifiInfo.toString());
-        return wifiInfo == null;
+        return wifiInfo != null;
     }
 
     /**
