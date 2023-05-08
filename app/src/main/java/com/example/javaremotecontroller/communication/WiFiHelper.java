@@ -9,10 +9,12 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class WiFiHelper {
     private WifiManager wifiManager;
@@ -61,6 +63,27 @@ public class WiFiHelper {
      */
     public WifiInfo getConnectionInfo() {
         return wifiManager.getConnectionInfo();
+    }
+
+    public ArrayList getConnectedIPs() {
+        ArrayList connectedIP = new ArrayList();
+
+        try {
+            BufferedReader br = new BufferedReader(new FileReader("/proc/net/arp"));
+            String line,totalText = "";
+            while((line = br.readLine())!=null){
+                totalText += line;
+                String[] splitted = line.split(" +");
+                if(splitted !=null && splitted.length ==4){
+                    String ip = splitted[0];
+                    connectedIP.add(ip);
+                }
+            }
+            Log.e("/proc/net/arp", totalText );
+        }catch (Exception e){
+            Log.e("wifi->getConnectedIPs", e.toString());
+        }
+        return connectedIP;
     }
 }
 

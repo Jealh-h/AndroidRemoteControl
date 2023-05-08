@@ -7,19 +7,17 @@
     android:orientation="vertical"
     tools:context=".ui.dashboard.DashboardFragment">
 
-    <Button
-        android:id="@+id/show_dialog"
-        android:layout_width="200dp"
-        android:layout_height="100dp"
-        android:text="dialog" />
+    <GridLayout
+        android:id="@+id/device_category_grid"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:columnCount="2"
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/show_popwindow"
-        android:layout_width="200dp"
-        android:layout_height="100dp"
-        android:text="popWindow"
-        tools:layout_editor_absoluteX="8dp"
-        tools:layout_editor_absoluteY="470dp" />
+<!--        <Button android:layout_columnWeight="1"></Button>-->
+<!--        <Button android:layout_columnWeight="1"></Button>-->
+    </GridLayout>
+
     <ProgressBar
         android:id="@+id/device_scan_progress"
         android:layout_width="match_parent"

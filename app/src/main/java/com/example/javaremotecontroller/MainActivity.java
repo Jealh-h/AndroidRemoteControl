@@ -20,6 +20,7 @@ import com.example.javaremotecontroller.fragments.BlankFragment;
 import com.example.javaremotecontroller.ui.dashboard.DashboardFragment;
 import com.example.javaremotecontroller.ui.home.HomeFragment;
 import com.example.javaremotecontroller.ui.notifications.NotificationsFragment;
+import com.example.javaremotecontroller.util.SqliteHelper;
 import com.example.javaremotecontroller.util.util;
 
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Integer currentIndex = 0;
     private Integer innerPadding  = 8;
     private static String TAG = "DEBUG";
+    private SqliteHelper sqliteHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initPage();
         initBottomNav();
         immersiveStatusBar();
+        sqliteHelper = new SqliteHelper(this, "REMOTE_CONTROLER", 1);
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.example.javaremotecontroller;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import net.irext.webapi.model.*;
 
 public class AirConditionPanel extends AppCompatActivity {
 

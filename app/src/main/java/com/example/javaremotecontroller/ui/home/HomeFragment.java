@@ -1,18 +1,18 @@
 package com.example.javaremotecontroller.ui.home;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,18 +28,19 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.javaremotecontroller.BlueToothDeviceList;
+import com.example.javaremotecontroller.BlueToothConnectState;
 import com.example.javaremotecontroller.MainActivity;
 import com.example.javaremotecontroller.R;
+import com.example.javaremotecontroller.WifiDeviceConnectState;
 import com.example.javaremotecontroller.adapter.BlueToothDeviceListAdapter;
 import com.example.javaremotecontroller.communication.BlueToothHelper;
-import com.example.javaremotecontroller.communication.InfraredHelper;
 import com.example.javaremotecontroller.communication.WiFiHelper;
 import com.example.javaremotecontroller.databinding.FragmentHomeBinding;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -48,9 +49,7 @@ import static android.content.Context.NOTIFICATION_SERVICE;
 
 public class HomeFragment extends Fragment implements CompoundButton.OnCheckedChangeListener, View.OnClickListener {
 
-    private HomeViewModel homeViewModel;
     private FragmentHomeBinding binding;
-    private InfraredHelper infraredHelper = new InfraredHelper();
     private BlueToothHelper blueToothHelper;
     private WiFiHelper wifiHelper;
     private NotificationManager notificationManager;
@@ -62,8 +61,6 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        homeViewModel =
-                new ViewModelProvider(this).get(HomeViewModel.class);
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
@@ -104,7 +101,6 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
                 .setContentIntent(pendingIntent)
                 .build();
 
-        initWifiState();
         initEvent();
 
         return root;
@@ -168,17 +164,17 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         blueToothHelper.open();
         WifiInfo wifiInfo = wifiHelper.getConnectionInfo();
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("wifi信息:\n");
-        sb.append("mac地址:" + wifiInfo.getMacAddress() + "\n");
-        sb.append("wifi名称::" + wifiInfo.getSSID() + "\n");
-        sb.append("接入点的BSSID：" + wifiInfo.getBSSID() + "\n");
-        sb.append("IP地址（int）：" + wifiInfo.getIpAddress() + "\n");
+        sb.append("mac地址:").append(wifiInfo.getMacAddress()).append("\n");
+        sb.append("wifi名称::").append(wifiInfo.getSSID()).append("\n");
+        sb.append("接入点的BSSID：").append(wifiInfo.getBSSID()).append("\n");
+        sb.append("IP地址（int）：").append(wifiInfo.getIpAddress()).append("\n");
         wifiInfoTextView.setText(wifiInfo.toString());
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, @NotNull int[] grantResults) {
         for (int i = 0; i < permissions.length; i++) {
             if (permissions[i].equals(Manifest.permission.ACCESS_COARSE_LOCATION)) {
                 int result = grantResults[i];
@@ -197,7 +193,9 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
     private void initWifiState() {
         View root = binding.getRoot();
         TextView wifiConnectState = root.findViewById(R.id.wifi_connect_state_text);
-        if(wifiHelper.isWifiConnect()) {
+        if(wifiHelper.getWifiState() == WifiManager.WIFI_STATE_DISABLED) {
+            wifiConnectState.setText("已关闭");
+        }else if(wifiHelper.isWifiConnect()) {
             wifiConnectState.setText("已连接");
         }else {
             wifiConnectState.setText("未连接");
@@ -207,17 +205,21 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
     private void initEvent() {
         View root = binding.getRoot();
         CardView blueToothCard = root.findViewById(R.id.bluetooth_home_card_view);
+        CardView wifiCard = root.findViewById(R.id.wifi_home_card_view);
         blueToothCard.setOnClickListener(this);
+        wifiCard.setOnClickListener(this);
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.wifi_home_card_view:
-
+                Intent wifi_intent = new Intent(getActivity(), WifiDeviceConnectState.class);
+                startActivity(wifi_intent);
                 break;
             case R.id.bluetooth_home_card_view:
-                Intent intent = new Intent(getActivity(), BlueToothDeviceList.class);
+                Intent intent = new Intent(getActivity(), BlueToothConnectState.class);
                 startActivity(intent);
                 break;
             default:
@@ -233,17 +235,19 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
             if (BluetoothDevice.ACTION_FOUND.equals(action)) {
                 BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                 Log.e(TAG, "onReceive: " + device.toString() );
-                if (device != null) {
-                    //判断是否配对过
-                    if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
-                        bluetoothDeviceArrayList.add(device);
-                        Log.e(TAG, "onReceive: " + device.getName() );
-                    }
+                //判断是否配对过
+                if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
+                    bluetoothDeviceArrayList.add(device);
+                    Log.e(TAG, "onReceive: " + device.getName() );
                 }
-            } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
-
             }
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        initWifiState();
     }
 }
 

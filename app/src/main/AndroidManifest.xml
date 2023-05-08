@@ -12,16 +12,39 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
 
     <application
+        android:name=".util.IRApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/Theme.JavaRemoteController">
-        <activity android:name=".AirConditionPanel"></activity>
-        <activity android:name=".BlueToothDeviceList" />
+
+        <meta-data
+            android:name="irext_app_key"
+            android:value="c49c3bd5ff6b3efb67d8af2c" />
+<!--        android:value="c727e7bb52207d73629c246442fcbe39"-->
+
+        <meta-data
+            android:name="irext_app_secret"
+            android:value="194f9cb578c458ace2284f16" />
+        <!--            android:value="0bbfb47d4240d13482742e429e788390"-->
+
+        <activity android:name=".BrandListActivity" />
+        <activity
+            android:name=".WifiDeviceConnectState"
+            android:label="@string/title_activity_wifi_device_connect_state"
+            android:theme="@style/Theme.JavaRemoteController.NoActionBar" />
+        <activity
+            android:name=".BlueToothConnectState"
+            android:label="@string/title_activity_blue_tooth_connect_state"
+            android:theme="@style/Theme.JavaRemoteController.NoActionBar" />
+        <activity android:name=".AirConditionPanel" />
         <activity
             android:name=".BlueToothDeviceDetail"
             android:configChanges="orientation|keyboardHidden|screenSize"

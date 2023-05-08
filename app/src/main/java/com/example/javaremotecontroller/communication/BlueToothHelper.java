@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.os.Message;
 import android.util.Log;
 
 import java.io.IOException;
@@ -17,6 +19,8 @@ import java.util.UUID;
 public class BlueToothHelper {
     private static BlueToothHelper mInstance = null;
     private BluetoothAdapter mBluetoothAdapter;
+    private ConnectTread connectTread;
+    private static final UUID APP_UUID = UUID.fromString("a-b-c-d-e");
 
     public BlueToothHelper() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -148,4 +152,69 @@ public class BlueToothHelper {
         return null;
     }
 
+    public void connect(BluetoothDevice device) {
+        connectTread = new ConnectTread(device);
+        connectTread.start();
+    }
+
+    private class ConnectTread extends Thread {
+        private BluetoothSocket socket;
+        private BluetoothDevice device;
+
+        public ConnectTread(BluetoothDevice device) {
+            this.device = device;
+
+            BluetoothSocket tmp = null;
+            try {
+                tmp = device.createRfcommSocketToServiceRecord(APP_UUID);
+            } catch (IOException e){
+                Log.e("connect->ConnectedTread", e.toString());
+            }
+            socket = tmp;
+        }
+
+        public void run() {
+            try {
+                socket.connect();
+            } catch (IOException e){
+                Log.e("ConnectThread->connect", e.toString());
+
+                try {
+                    socket.close();
+                } catch (IOException e1){
+                    Log.e("ConnectThread->close", e1.toString());
+                }
+                connectionFailed();
+                return;
+            }
+        }
+
+        public void cancel() {
+            try {
+                socket.close();
+            } catch (IOException e){
+                Log.e("Connect -> cancel", e.toString());
+            }
+        }
+    }
+
+    private synchronized void connectionFailed() {
+        Log.e("TAG", "connectionFailed: ");
+    }
+
+    private void connected(BluetoothDevice device){
+        if(connectTread != null) {
+            connectTread.cancel();
+            connectTread = null;
+        }
+
+//        Message message = handler.obtainMessage();
+//        Bundle bundle = new Bundle();
+//        bundle.putString("DEVICE_NAME", device.getName());
+//        message.setData(bundle);
+//
+//        hundler.sendMessage(message);
+//
+//        setState("handle");
+    }
 }
