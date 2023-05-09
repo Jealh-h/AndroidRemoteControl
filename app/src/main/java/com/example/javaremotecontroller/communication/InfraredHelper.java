@@ -5,12 +5,8 @@ import android.hardware.ConsumerIrManager;
 import android.util.Log;
 import android.widget.Toast;
 
-//import static androidx.core.content.ContextCompat.getSystemService;
-
-//import static androidx.core.content.ContextCompat.getSystemService;
-
 public class InfraredHelper {
-    public boolean sendSignal(Context context) {
+    public boolean sendSignal(Context context, int[] pattern) {
         // 获取 ConsumerIrManager 对象
         ConsumerIrManager irManager = (ConsumerIrManager) context.getSystemService(Context.CONSUMER_IR_SERVICE);
 
@@ -21,7 +17,7 @@ public class InfraredHelper {
         }
         Log.v("紅外發射","1234");
         // 通过 ConsumerIrManager 对象发送红外信号
-        int[] pattern = {1000,2000,1000,2000,1000,2000,1000,2000,1000,2000,1000,2000,1000,2000,1000,2000,1000,2000,1000,2000};
+//        int[] pattern = {1000,2000,1000,2000,1000,2000,1000,2000,1000,2000,1000,2000,1000,2000,1000,2000,1000,2000,1000,2000};
         irManager.transmit(38000, pattern);
         return true;
     }

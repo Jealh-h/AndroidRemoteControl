@@ -12,8 +12,7 @@ import net.irext.webapi.WebAPICallbacks.SignInCallback;
 
 public class IRApplication extends com.activeandroid.app.Application {
 
-//    private static final String TAG = IRApplication.class.getSimpleName();
-    private static final String TAG = "IRApplication";
+    private static final String TAG = "WEB_API_DEBUG";
 
     private static final String ADDRESS = "http://irext.net";
     private static final String APP_NAME = "/irext-server";
