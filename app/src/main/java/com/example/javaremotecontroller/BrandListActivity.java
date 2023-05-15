@@ -29,7 +29,6 @@ import net.irext.webapi.WebAPICallbacks.*;
 public class BrandListActivity extends AppCompatActivity {
 
     private List<Brand> brandList = new ArrayList();
-    private WebAPIs webAPIs = WebAPIs.getInstance("http://site.irext.net","/irext-server");
     private String TAG = "WEB_API_DEBUG";
     private IRApplication mApp;
     private DeviceCategoryModel deviceCategoryModel;
@@ -43,7 +42,7 @@ public class BrandListActivity extends AppCompatActivity {
 
         Bundle bundle = this.getIntent().getExtras();
         deviceCategoryModel = bundle.getParcelable(util.DASHBOARD_TO_BRAND_LIST_KEY);
-
+        util.immersionStatusBar(this);
         mApp = (IRApplication) Objects.requireNonNull(this).getApplication();
         init();
     }
@@ -82,9 +81,6 @@ public class BrandListActivity extends AppCompatActivity {
                 loading.setVisibility(View.GONE);
                 brandList.addAll(list);
                 singleLineAdapter.notifyDataSetChanged();
-                for(Brand b : list) {
-                    Log.e(TAG, "onListBrandsSuccess: " + b.getName() + b.getCategoryId() );
-                }
             }
 
             @Override

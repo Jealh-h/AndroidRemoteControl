@@ -2,10 +2,8 @@ package com.example.javaremotecontroller.ui.home;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -22,28 +20,25 @@ import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
-import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.javaremotecontroller.BlueToothConnectState;
-import com.example.javaremotecontroller.MainActivity;
 import com.example.javaremotecontroller.R;
 import com.example.javaremotecontroller.WifiDeviceConnectState;
 import com.example.javaremotecontroller.adapter.BlueToothDeviceListAdapter;
 import com.example.javaremotecontroller.communication.BlueToothHelper;
 import com.example.javaremotecontroller.communication.WiFiHelper;
 import com.example.javaremotecontroller.databinding.FragmentHomeBinding;
+import com.example.javaremotecontroller.util.util;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Set;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
@@ -53,8 +48,6 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
     private BlueToothHelper blueToothHelper;
     private WiFiHelper wifiHelper;
     private NotificationManager notificationManager;
-    private Notification notification;
-    private TextView wifiInfoTextView;
     RecyclerView recyclerView;
     private ArrayList<BluetoothDevice> bluetoothDeviceArrayList = new ArrayList<>();
     private String TAG = "DEBUG";
@@ -64,9 +57,6 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
 
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-
-        // 获取连接过的蓝牙设备
-        initBlueToothDevice();
 
         blueToothHelper = new BlueToothHelper();
         wifiHelper = new WiFiHelper(getActivity());
@@ -78,10 +68,10 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
         recyclerView.setAdapter(blueToothDeviceListAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        final Switch wifiSwitch = root.findViewById(R.id.wifi_switch_home);
-        wifiInfoTextView = root.findViewById(R.id.wifi_info);
+//        final Switch wifiSwitch = root.findViewById(R.id.wifi_switch_home);
+//        wifiInfoTextView = root.findViewById(R.id.wifi_info);
 
-        wifiSwitch.setOnCheckedChangeListener(this);
+//        wifiSwitch.setOnCheckedChangeListener(this);
 
         notificationManager = (NotificationManager) getActivity().getSystemService(NOTIFICATION_SERVICE);
 
@@ -90,16 +80,6 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
             NotificationChannel channel = new NotificationChannel("cid", "通知", NotificationManager.IMPORTANCE_HIGH);
             notificationManager.createNotificationChannel(channel);
         }
-
-        Intent intent = new Intent(getActivity(), MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(getActivity(), 0, intent, PendingIntent.FLAG_IMMUTABLE);
-
-        notification = new NotificationCompat.Builder(getActivity(), "cid")
-                .setContentTitle("标题")
-                .setContentText("这是内容")
-                .setSmallIcon(R.drawable.ic_baseline_settings_24)
-                .setContentIntent(pendingIntent)
-                .build();
 
         initEvent();
 
@@ -112,47 +92,16 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
         binding = null;
     }
 
-    private void initBlueToothDevice() {
-//        // 不支持蓝牙
-        if (!BlueToothHelper.getInstance().isSupport()) {
-            Toast.makeText(getActivity(), "当前设备不支持蓝牙", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        BlueToothHelper.getInstance().open();
-        Set<BluetoothDevice> mBondedList = BlueToothHelper.getInstance().getBondedDevices();
-        for (BluetoothDevice device : mBondedList) {
-            Log.e(TAG, "initBlueToothDevice: " + device.getName());
-            bluetoothDeviceArrayList.add(device);
-        }
-//        BtFoundReceiver mBtFoundReceiver = new BtFoundReceiver();
-//        IntentFilter filter = new IntentFilter();
-//        //搜索结果
-//        filter.addAction(BluetoothDevice.ACTION_FOUND);
-//        //搜索完成
-//        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-//        getActivity().registerReceiver(mBtFoundReceiver, filter);
-//
-//        if (!BlueToothHelper.getInstance().isSupport()) {
-//            Toast.makeText(getActivity(), "当前设备不支持蓝牙", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//
-//        BlueToothHelper.getInstance().open();
-//
-//        requestPermission();
-    }
-
     private void requestPermission() {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1001);
-//            } else {
-//                startDiscovery();
-//            }
-//        } else {
-//            startDiscovery();
-//        }
-        startDiscovery();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1001);
+            } else {
+                startDiscovery();
+            }
+        } else {
+            startDiscovery();
+        }
     }
 
     private void startDiscovery() {
@@ -163,14 +112,6 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         blueToothHelper.open();
-        WifiInfo wifiInfo = wifiHelper.getConnectionInfo();
-        StringBuilder sb = new StringBuilder();
-        sb.append("wifi信息:\n");
-        sb.append("mac地址:").append(wifiInfo.getMacAddress()).append("\n");
-        sb.append("wifi名称::").append(wifiInfo.getSSID()).append("\n");
-        sb.append("接入点的BSSID：").append(wifiInfo.getBSSID()).append("\n");
-        sb.append("IP地址（int）：").append(wifiInfo.getIpAddress()).append("\n");
-        wifiInfoTextView.setText(wifiInfo.toString());
     }
 
     @Override
@@ -193,6 +134,7 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
     private void initWifiState() {
         View root = binding.getRoot();
         TextView wifiConnectState = root.findViewById(R.id.wifi_connect_state_text);
+        TextView bluetoothConnectState = root.findViewById(R.id.bluetooth_connect_state_text);
         if(wifiHelper.getWifiState() == WifiManager.WIFI_STATE_DISABLED) {
             wifiConnectState.setText("已关闭");
         }else if(wifiHelper.isWifiConnect()) {
@@ -200,6 +142,7 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
         }else {
             wifiConnectState.setText("未连接");
         }
+        bluetoothConnectState.setText(BlueToothHelper.getInstance().isEnabled()?"已开启" : "未开启");
     }
 
     private void initEvent() {
@@ -240,6 +183,9 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
                     bluetoothDeviceArrayList.add(device);
                     Log.e(TAG, "onReceive: " + device.getName() );
                 }
+            }else if(BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
+                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.ACTION_ACL_CONNECTED);
+                Log.e(TAG, "onReceive: " + device.getName() );
             }
         }
     }

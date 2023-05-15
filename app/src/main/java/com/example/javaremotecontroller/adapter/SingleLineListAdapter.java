@@ -17,6 +17,10 @@ import com.example.javaremotecontroller.BrandListActivity;
 import com.example.javaremotecontroller.MainActivity;
 import com.example.javaremotecontroller.R;
 import com.example.javaremotecontroller.model.BrandModel;
+import com.example.javaremotecontroller.ui.activity.FanActivity;
+import com.example.javaremotecontroller.ui.activity.LampActivity;
+import com.example.javaremotecontroller.ui.activity.SoundActivity;
+import com.example.javaremotecontroller.ui.activity.SweepRobotActivity;
 import com.example.javaremotecontroller.ui.activity.TvActivity;
 import com.example.javaremotecontroller.util.util;
 
@@ -55,7 +59,6 @@ public class SingleLineListAdapter extends RecyclerView.Adapter<SingleLineListAd
                 Brand brand = data.get(position);
                 BrandModel brandModel = new BrandModel(brand);
                 Intent operationPanel;
-                Log.e(TAG, "onClick: " + position + brand.getName());
                 // 跳转到控制面板界面
                 switch (brand.getCategoryId()){
                     // 空调
@@ -64,6 +67,18 @@ public class SingleLineListAdapter extends RecyclerView.Adapter<SingleLineListAd
                         break;
                     case util.CATEGORY_ID_TV:
                         operationPanel = new Intent(context, TvActivity.class);
+                        break;
+                    case util.CATEGORY_ID_FAN:
+                        operationPanel = new Intent(context, FanActivity.class);
+                        break;
+                    case util.CATEGORY_ID_SOUND:
+                        operationPanel = new Intent(context, SoundActivity.class);
+                        break;
+                    case util.CATEGORY_ID_LAMP:
+                        operationPanel = new Intent(context, LampActivity.class);
+                        break;
+                    case util.CATEGORY_ID_SWEEP:
+                        operationPanel = new Intent(context, SweepRobotActivity.class);
                         break;
                     default:
                         operationPanel = new Intent(context, MainActivity.class);

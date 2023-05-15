@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ui.activity.FanActivity">
+
+    <Toolbar
+        android:id="@+id/lamp_operation_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:navigationIcon="@drawable/ic_baseline_arrow_back_24"
+        android:title="灯"/>
+
+    <Button
+        android:id="@+id/lamp_turn_on"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="打开"
+        android:onClick="onClick"
+        app:layout_constraintBottom_toTopOf="@+id/lamp_power_incs"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.247"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.914" />
+
+    <Button
+        android:id="@+id/lamp_turn_off"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:text="关闭"
+        android:onClick="onClick"
+        app:layout_constraintBottom_toTopOf="@+id/lamp_power_decs"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.752"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.996" />
+
+    <Button
+        android:id="@+id/lamp_power_incs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="340dp"
+        android:text="亮度+"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/lamp_power_decs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="340dp"
+        android:layout_marginEnd="80dp"
+        android:text="亮度-"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.flexbox.FlexboxLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:justifyContent="space_around"
+        app:alignItems="center"
+        app:layout_constraintBottom_toBottomOf="parent">
+        <Button
+            android:id="@+id/pre_bt_lamp"
+            android:onClick="onClick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="上一个" />
+        <TextView
+            android:id="@+id/indicator_lamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1/NAN"/>
+        <Button
+            android:id="@+id/next_btn_lamp"
+            android:onClick="onClick"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="下一个"/>
+    </com.google.android.flexbox.FlexboxLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

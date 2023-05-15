@@ -1,15 +1,25 @@
 package com.example.javaremotecontroller.communication;
 
+import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.Intent;
-import android.os.Message;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.util.Log;
 
+import com.example.javaremotecontroller.util.util;
+
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -21,6 +31,8 @@ public class BlueToothHelper {
     private BluetoothAdapter mBluetoothAdapter;
     private ConnectTread connectTread;
     private static final UUID APP_UUID = UUID.fromString("a-b-c-d-e");
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 9999;
+    private String TAG = "BLUE_TOOTH_HELPER";
 
     public BlueToothHelper() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -41,7 +53,6 @@ public class BlueToothHelper {
      * @return
      */
     public boolean isSupport() {
-
         return mBluetoothAdapter != null;
     }
 
@@ -83,7 +94,6 @@ public class BlueToothHelper {
      * @return Set
      */
     public Set<BluetoothDevice> getBondedDevices() {
-
         return mBluetoothAdapter.getBondedDevices();
     }
 
@@ -108,14 +118,71 @@ public class BlueToothHelper {
 
     }
 
+    public ArrayList<BluetoothDevice> getConnectedDevices() {
+        Set<BluetoothDevice> bondedDevices = mBluetoothAdapter.getBondedDevices();
+        ArrayList<BluetoothDevice> bluetoothDeviceArrayList = new ArrayList<>();
+
+        for (BluetoothDevice device : bondedDevices) {
+            int headset = mBluetoothAdapter.getProfileConnectionState(BluetoothProfile.HEADSET);
+            int a2dp = mBluetoothAdapter.getProfileConnectionState(BluetoothProfile.A2DP);
+            int health = mBluetoothAdapter.getProfileConnectionState(BluetoothProfile.HEALTH);
+            if (BluetoothProfile.STATE_CONNECTED == headset) {
+                // device is connected via A2DP profile
+                bluetoothDeviceArrayList.add(device);
+            } else if (BluetoothProfile.STATE_CONNECTED == mBluetoothAdapter.getProfileConnectionState(BluetoothProfile.HEADSET)) {
+                // device is connected via Headset profile
+                bluetoothDeviceArrayList.add(device);
+            } else if (BluetoothProfile.STATE_CONNECTED == mBluetoothAdapter.getProfileConnectionState(BluetoothProfile.HEALTH)) {
+                // device is connected via Health profile
+                bluetoothDeviceArrayList.add(device);
+            }
+        }
+        return bluetoothDeviceArrayList;
+    }
+
+    public String getConnectStateString(Context context) {
+        BluetoothAdapter bluetoothAdapter = mBluetoothAdapter.getDefaultAdapter();
+        if (mBluetoothAdapter.isEnabled()) { // 确保蓝牙已开启
+            BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
+            List<BluetoothDevice> connectedDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT);
+            if (!connectedDevices.isEmpty()) {
+                // 蓝牙设备已连接
+                // 执行操作
+                return "已连接(" + connectedDevices.size() + ")";
+            } else {
+                // 蓝牙设备未连接
+                return "未连接";
+            }
+        } else {
+            // 蓝牙未开启
+            return "未开启";
+        }
+    }
+
     /**
      * 开始搜索
      */
     public void startDiscovery(Activity activity) {
-        if (isDiscovering()) {
+       if (isDiscovering()) {
             mBluetoothAdapter.cancelDiscovery();
         }
-        mBluetoothAdapter.startDiscovery();
+//        if(activity.checkPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
+//
+//        }
+        if(!util.LocationStateCheck(activity)) {
+            util.openLocationSetting(activity);
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (activity.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // 如果没有定位权限，则向用户请求权限
+                activity.requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+            } else {
+                // 如果有定位权限，进行相应操作
+                // ...
+                mBluetoothAdapter.startDiscovery();
+            }
+        }
+        Log.e("DEBUG_LIFE_CYCLE", "startDiscovery:2 " + isDiscovering());
     }
 
     /**
@@ -152,9 +219,15 @@ public class BlueToothHelper {
         return null;
     }
 
-    public void connect(BluetoothDevice device) {
+    public void connectSocket(BluetoothDevice device) {
         connectTread = new ConnectTread(device);
         connectTread.start();
+    }
+
+    public void sendCommand(byte[] command) {
+        if(connectTread!=null) {
+            connectTread.sendByte(command);
+        }
     }
 
     private class ConnectTread extends Thread {
@@ -166,7 +239,7 @@ public class BlueToothHelper {
 
             BluetoothSocket tmp = null;
             try {
-                tmp = device.createRfcommSocketToServiceRecord(APP_UUID);
+                tmp = this.device.createRfcommSocketToServiceRecord(APP_UUID);
             } catch (IOException e){
                 Log.e("connect->ConnectedTread", e.toString());
             }
@@ -181,6 +254,7 @@ public class BlueToothHelper {
 
                 try {
                     socket.close();
+                    socket = null;
                 } catch (IOException e1){
                     Log.e("ConnectThread->close", e1.toString());
                 }
@@ -192,8 +266,22 @@ public class BlueToothHelper {
         public void cancel() {
             try {
                 socket.close();
+                socket = null;
             } catch (IOException e){
                 Log.e("Connect -> cancel", e.toString());
+            }
+        }
+
+        public void sendByte(byte[] bytes) {
+            if(socket!=null) {
+                try  {
+                    OutputStream outputStream = socket.getOutputStream();
+                    if(outputStream!=null){
+                        outputStream.write(bytes);
+                    }
+                } catch (Exception e) {
+                    Log.e(TAG, "sendByte: " + e.toString());
+                }
             }
         }
     }
@@ -207,14 +295,5 @@ public class BlueToothHelper {
             connectTread.cancel();
             connectTread = null;
         }
-
-//        Message message = handler.obtainMessage();
-//        Bundle bundle = new Bundle();
-//        bundle.putString("DEVICE_NAME", device.getName());
-//        message.setData(bundle);
-//
-//        hundler.sendMessage(message);
-//
-//        setState("handle");
     }
 }

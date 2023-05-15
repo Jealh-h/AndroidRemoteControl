@@ -24,9 +24,5 @@
 <!--        <Button android:layout_columnWeight="1"></Button>-->
     </GridLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/blue_tooth_scan_device_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 
 </androidx.appcompat.widget.LinearLayoutCompat>

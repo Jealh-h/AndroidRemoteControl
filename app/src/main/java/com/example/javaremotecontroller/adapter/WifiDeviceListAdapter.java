@@ -1,9 +1,9 @@
 package com.example.javaremotecontroller.adapter;
 
-
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
+import android.net.wifi.ScanResult;
 import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,38 +23,37 @@ import com.example.javaremotecontroller.util.util;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.function.Function;
 
-public class BlueToothDeviceListAdapter extends RecyclerView.Adapter<BlueToothDeviceListAdapter.MyViewHolder> implements View.OnClickListener {
+
+public class WifiDeviceListAdapter extends RecyclerView.Adapter<WifiDeviceListAdapter.MyViewHolder> implements View.OnClickListener {
 
     Context context;
-    ArrayList<BluetoothDevice> devicesList;
+    ArrayList<ScanResult> devicesList;
     RecyclerView recyclerView;
     private ListItemClick listItemClick;
 
-    public BlueToothDeviceListAdapter(Context context, ArrayList<BluetoothDevice> devicesList) {
+    public WifiDeviceListAdapter(Context context, ArrayList<ScanResult> devicesList) {
         this.context = context;
         this.devicesList = devicesList;
-        Log.e("TAG", "BlueToothDeviceListAdapter: "+ devicesList);
     }
 
     @NonNull
     @Override
-    public BlueToothDeviceListAdapter.MyViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
+    public WifiDeviceListAdapter.MyViewHolder onCreateViewHolder(@NonNull @NotNull ViewGroup parent, int viewType) {
         if(recyclerView==null){
             recyclerView = (RecyclerView) parent;
         }
-        View view = LayoutInflater.from(this.context).inflate(R.layout.blue_tooth_device_item, parent, false);
+        View view = LayoutInflater.from(this.context).inflate(R.layout.wifi_device_item, parent, false);
         view.setOnClickListener(this);
         return new MyViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull @NotNull BlueToothDeviceListAdapter.MyViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull @NotNull WifiDeviceListAdapter.MyViewHolder holder, int position) {
         // 设置数据
-        holder.deviceName.setText(devicesList.get(position).getName() == null ?
-                "未知设备" : devicesList.get(position).getName());
-        holder.deviceIp.setText(devicesList.get(position).getAddress());
+        holder.deviceName.setText(devicesList.get(position).SSID == "" ?
+                "未知设备" : devicesList.get(position).SSID);
+        holder.deviceIp.setText(devicesList.get(position).BSSID);
     }
 
     @Override
@@ -68,10 +67,10 @@ public class BlueToothDeviceListAdapter extends RecyclerView.Adapter<BlueToothDe
             this.listItemClick.onClick(v, devicesList);
         }else {
             int position = recyclerView.getChildAdapterPosition(v);
-            Toast.makeText(context, devicesList.get(position).getAddress(), Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(context, BlueToothDeviceDetail.class);
-            intent.putExtra(util.BLUE_TOOTH_DEVICE_CARRY_DATA_KEY, devicesList.get(position).getAddress());
-            context.startActivity(intent);
+            Toast.makeText(context, devicesList.get(position).SSID, Toast.LENGTH_SHORT).show();
+//            Intent intent = new Intent(context, BlueToothDeviceDetail.class);
+//            intent.putExtra(util.BLUE_TOOTH_DEVICE_CARRY_DATA_KEY, devicesList.get(position).BSSID);
+//            context.startActivity(intent);
         }
     }
 
@@ -81,7 +80,7 @@ public class BlueToothDeviceListAdapter extends RecyclerView.Adapter<BlueToothDe
     }
 
     public interface ListItemClick {
-        void onClick(View v, ArrayList<BluetoothDevice> devList);
+        void onClick(View v, ArrayList<ScanResult> devList);
     }
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
@@ -90,8 +89,9 @@ public class BlueToothDeviceListAdapter extends RecyclerView.Adapter<BlueToothDe
 
         public MyViewHolder(@NonNull @NotNull View itemView) {
             super(itemView);
-            deviceName = itemView.findViewById(R.id.blue_tooth_device_name);
-            deviceIp = itemView.findViewById(R.id.blue_tooth_device_ip);
+            deviceName = itemView.findViewById(R.id.wifi_device_name);
+            deviceIp = itemView.findViewById(R.id.wifi_device_ip);
         }
     }
 }
+

@@ -16,11 +16,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:paddingHorizontal="16dp"
+            android:paddingHorizontal="12dp"
+            android:layout_marginBottom="15dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
-
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="wrap_content"
@@ -37,16 +37,48 @@
                 android:layout_marginLeft="20dp"
                 android:text="0" />
         </LinearLayout>
-        <LinearLayout
-            android:id="@+id/blue_tooth_connected_device"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/blue_tooth_connected_device_list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="@dimen/text_margin"
-            android:text="@string/large_text" />
+            android:layout_height="match_parent" />
+
+        <com.google.android.flexbox.FlexboxLayout
+            android:layout_width="match_parent"
+            android:layout_height="75dp"
+            app:justifyContent="space_between"
+            app:alignItems="center"
+            android:padding="12dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16dp"
+                android:textStyle="bold"
+                android:layout_marginLeft="5dp"
+                android:text="扫描设备"/>
+            <androidx.cardview.widget.CardView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                app:cardCornerRadius="36dp"
+                android:layout_marginRight="5dp"
+                android:id="@+id/refresh_blue_device_list"
+                android:onClick="onClick"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintVertical_bias="0.16000003">
+                <ImageView
+                    android:id="@+id/ac_power"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="5dp"
+                    app:srcCompat="@drawable/ic_baseline_loop_24" />
+            </androidx.cardview.widget.CardView>
+        </com.google.android.flexbox.FlexboxLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/blue_tooth_scan_device_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </LinearLayout>
 
 </androidx.core.widget.NestedScrollView>

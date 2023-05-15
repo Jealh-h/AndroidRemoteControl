@@ -32,15 +32,11 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingHorizontal="16dp">
-            <Switch
-                android:id="@+id/wifi_switch_home"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="wifi"/>
-            <TextView
-                android:id="@+id/wifi_info"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+<!--            <Switch-->
+<!--                android:id="@+id/wifi_switch_home"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="wifi"/>-->
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/padding"
@@ -54,6 +50,7 @@
                     android:layout_height="100dp"
                     app:cardCornerRadius="12dp"
                     app:contentPadding="6dp"
+                    android:layout_margin="6dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -100,6 +97,7 @@
                     android:layout_width="0dp"
                     android:layout_height="100dp"
                     app:contentPadding="6dp"
+                    android:layout_margin="6dp"
                     app:cardCornerRadius="12dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"

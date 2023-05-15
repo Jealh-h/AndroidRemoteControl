@@ -37,40 +37,20 @@ import java.util.ArrayList;
 
 public class DashboardFragment extends Fragment {
 
-    private DashboardViewModel dashboardViewModel;
     private FragmentDashboardBinding binding;
     private Toast mToast;
-    private ProgressBar progressBar;
 
 
     RecyclerView recyclerView;
-    BlueToothHelper blueToothHelper = new BlueToothHelper();
     BlueToothDeviceListAdapter mAdapter;
     ArrayList<BluetoothDevice> mDeviceList = new ArrayList<>();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        dashboardViewModel =
-                new ViewModelProvider(this).get(DashboardViewModel.class);
 
         binding = FragmentDashboardBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        progressBar = root.findViewById(R.id.device_scan_progress);
 
-        mAdapter = new BlueToothDeviceListAdapter(getActivity(), mDeviceList);
-        recyclerView = root.findViewById(R.id.blue_tooth_scan_device_recycler_view);
-        recyclerView.setAdapter(mAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
-//        final TextView textView = binding.textDashboard;
-//        dashboardViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-//            @Override
-//            public void onChanged(@Nullable String s) {
-//                textView.setText(s);
-//            }
-//        });
-
-        init();
         initGridLayout();
 
         return root;
@@ -164,13 +144,6 @@ public class DashboardFragment extends Fragment {
 //        </androidx.cardview.widget.CardView>
     }
 
-    private void init() {
-        IntentFilter intentFilter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-        getActivity().registerReceiver(mReceiver, intentFilter);
-        IntentFilter intentFilter1 = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-        getActivity().registerReceiver(mReceiver, intentFilter1);
-    }
-
     //设置toast的标准格式
     private void showToast(String text){
         if(mToast == null){
@@ -182,61 +155,6 @@ public class DashboardFragment extends Fragment {
         mToast.show();
 
     }
-
-    private BroadcastReceiver mReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if(BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)){
-                //setProgressBarIndeterminateVisibility(true);
-                //初始化数据列表
-                mDeviceList.clear();
-                mAdapter.notifyDataSetChanged();
-            } else if(BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)){
-                progressBar.setVisibility(View.GONE);
-                if(mDeviceList.size() == 0) {
-                    Toast.makeText(getContext(),"no device found", Toast.LENGTH_SHORT).show();
-                }else {
-                    Toast.makeText(getContext(),"Click on the device to start Chat", Toast.LENGTH_SHORT).show();
-                }
-            } else if(BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
-                // 已连接
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.ACTION_ACL_CONNECTED);
-                Log.e("TAG", "connected: " + device.getName());
-            } else if(BluetoothDevice.ACTION_FOUND.equals(action)) {
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                //找到一个添加一个
-                if(device.getBondState()!=BluetoothDevice.BOND_BONDED){
-                    mDeviceList.add(device);
-                }
-                mAdapter.notifyDataSetChanged();
-
-            } else if(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED.equals(action)) {  //此处作用待细查
-                int scanMode = intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, 0);
-                if(scanMode == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE){
-                    progressBar.setVisibility(View.VISIBLE);
-                } else {
-                    progressBar.setVisibility(View.GONE);
-                }
-
-            } else if(BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
-                BluetoothDevice remoteDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                if(remoteDevice == null) {
-                    showToast("无设备");
-                    return;
-                }
-                int status = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, 0);
-                if(status == BluetoothDevice.BOND_BONDED) {
-                    showToast("已绑定" + remoteDevice.getName());
-                } else if(status == BluetoothDevice.BOND_BONDING) {
-                    showToast("正在绑定" + remoteDevice.getName());
-                } else if(status == BluetoothDevice.BOND_NONE) {
-                    showToast("未绑定" + remoteDevice.getName());
-                }
-            }
-        }
-    };
 
     @Override
     public void onDestroyView() {

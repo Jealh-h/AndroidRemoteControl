@@ -61,7 +61,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         initPage();
         initBottomNav();
-        immersiveStatusBar();
+        util.immersionStatusBar(this);
         sqliteHelper = new SqliteHelper(this, "REMOTE_CONTROLER", 1);
     }
 
@@ -188,19 +188,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         animation.setDuration(200);
         indicator.startAnimation(animation);
         currentIndex = nextIndex;
-    }
-
-    private void immersiveStatusBar() {
-        this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        this.getWindow().setStatusBarColor(Color.TRANSPARENT);
-        this.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        this.getWindow()
-                .getDecorView()
-                .setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_STABLE | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-        // 安卓 6.0+
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // 状态栏的图标显示为黑色
-            this.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-        }
     }
 }

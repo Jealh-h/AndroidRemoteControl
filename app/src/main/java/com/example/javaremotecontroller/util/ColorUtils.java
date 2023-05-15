@@ -4,6 +4,6 @@ import android.content.Context;
 
 public class ColorUtils {
     public static int getColor(Context ctx,int color) {
-        return 0;
+        return ctx.getResources().getColor(color);
     }
 }
