@@ -16,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.example.javaremotecontroller.adapter.FragmentPageAdapter;
+import com.example.javaremotecontroller.communication.BluetoothHidHelper;
 import com.example.javaremotecontroller.fragments.BlankFragment;
 import com.example.javaremotecontroller.ui.dashboard.DashboardFragment;
 import com.example.javaremotecontroller.ui.home.HomeFragment;
@@ -63,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         initBottomNav();
         util.immersionStatusBar(this);
         sqliteHelper = new SqliteHelper(this, "REMOTE_CONTROLER", 1);
+        new BluetoothHidHelper(this);
     }
 
     @Override

@@ -29,7 +29,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/fan_wind_power_decs"
+        android:id="@+id/sound_power_decs"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="276dp"
@@ -74,7 +74,7 @@
         app:layout_constraintVertical_bias="0.25">
 
         <ImageView
-            android:id="@+id/tv_mute"
+            android:id="@+id/sound_mute"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:onClick="onClick"

@@ -31,6 +31,7 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -52,7 +53,7 @@ public class WifiDeviceConnectState extends AppCompatActivity implements View.On
         binding = ActivityWifiDeviceConnectStateBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        Toolbar toolbar = binding.toolbar;
+        Toolbar toolbar = binding.wifiConnectStateToolbar;
         setSupportActionBar(toolbar);
         CollapsingToolbarLayout toolBarLayout = binding.toolbarLayout;
         toolBarLayout.setTitle(getTitle());
@@ -87,6 +88,8 @@ public class WifiDeviceConnectState extends AppCompatActivity implements View.On
         List<ScanResult> scanList = wifiHelper.getScanResults();
         wifiList.addAll(scanList);
         wifiDeviceListAdapter.notifyDataSetChanged();
+
+        util.immersionStatusBar(this);
     }
 
     private void sendToESP(String msg) {
@@ -99,7 +102,8 @@ public class WifiDeviceConnectState extends AppCompatActivity implements View.On
                     Socket socket = new Socket(serverAddr, 80);
                     // 发送指令
                     OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
-                    writer.write(msg);
+                    String message = "GET " + msg + "HTTP/1.1\r\n\r\n";
+                    writer.write(message);
                     writer.flush();
 
                     // 读取响应
@@ -109,7 +113,7 @@ public class WifiDeviceConnectState extends AppCompatActivity implements View.On
                     reader.close();
                     writer.close();
                     socket.close();
-                    Log.e(TAG, "run: " + msg + response );
+                    Log.e(TAG, "response: " + msg + response );
                 } catch (Exception e) {
                     e.printStackTrace();
                     Log.e(TAG, "run: " + msg + e.toString() );
@@ -121,7 +125,7 @@ public class WifiDeviceConnectState extends AppCompatActivity implements View.On
     @Override
     public void onClick(View v) {
         if(v.getId()==R.id.clean) {
-            sendToESP("clean");
+            sendToESP("time");
         }else {
             sendToESP("安卓发送时间：" + new Date().toString());
         }

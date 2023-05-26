@@ -14,7 +14,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:navigationIcon="@drawable/ic_baseline_arrow_back_24"
-        android:title="风扇"/>
+        android:title="电视"/>
     <com.google.android.flexbox.FlexboxLayout
         android:layout_width="match_parent"
         android:layout_height="40dp"

@@ -1,25 +1,17 @@
 package com.example.javaremotecontroller.communication;
 import android.app.Service;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkCapabilities;
+import android.net.DhcpInfo;
 import android.net.NetworkInfo;
-import android.net.NetworkRequest;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.net.wifi.WifiNetworkSpecifier;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.PatternMatcher;
+import android.text.format.Formatter;
 import android.util.Log;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -27,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -104,6 +97,32 @@ public class WiFiHelper {
         WifiInfo info = mWifiManager.getConnectionInfo();
         return info.getSSID().replace("\"", "");
     }
+
+    public ArrayList<String> scanDevicesInNetwork() {
+        final ArrayList<String> deviceList = new ArrayList<>();
+
+        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+        DhcpInfo dhcpInfo = wifiManager.getDhcpInfo();
+        String gateway = Formatter.formatIpAddress(dhcpInfo.gateway);
+
+        for (int i = 1; i <= 254; i++) {
+            String ipAddress = gateway.substring(0, gateway.lastIndexOf(".") + 1) + i;
+            try {
+                InetAddress inetAddress = InetAddress.getByName(ipAddress);
+                deviceList.add(inetAddress.getHostAddress());
+//                if (inetAddress.isReachable(1000)) {
+//                    deviceList.add(inetAddress.getHostAddress());
+//                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // 处理设备列表
+        // ...
+        return deviceList;
+    }
+
 
     /**
      * 获取设备周围的Wi-Fi网络列表
@@ -192,10 +211,5 @@ class HttpRequestTask extends AsyncTask<String, Void, String> {
             result = "Error: " + e.getMessage();
         }
         return result;
-    }
-
-    @Override
-    protected void onPostExecute(String result) {
-//        Toast.makeText(getApplicationContext(), result, Toast.LENGTH_LONG).show();
     }
 }

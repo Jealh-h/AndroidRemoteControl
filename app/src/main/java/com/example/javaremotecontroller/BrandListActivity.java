@@ -1,7 +1,6 @@
 package com.example.javaremotecontroller;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -11,10 +10,12 @@ import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toolbar;
 
 import com.example.javaremotecontroller.adapter.SingleLineListAdapter;
 import com.example.javaremotecontroller.model.DeviceCategoryModel;
 import com.example.javaremotecontroller.util.IRApplication;
+import com.example.javaremotecontroller.util.ToastUtils;
 import com.example.javaremotecontroller.util.util;
 
 import java.util.ArrayList;
@@ -22,7 +23,6 @@ import java.util.List;
 import java.util.Objects;
 
 import net.irext.webapi.model.*;
-import net.irext.webapi.WebAPIs;
 import net.irext.webapi.WebAPICallbacks.*;
 
 
@@ -34,6 +34,7 @@ public class BrandListActivity extends AppCompatActivity {
     private DeviceCategoryModel deviceCategoryModel;
     private SingleLineListAdapter singleLineAdapter;
     RecyclerView recyclerView;
+    private LinearLayout fallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,11 +46,14 @@ public class BrandListActivity extends AppCompatActivity {
         util.immersionStatusBar(this);
         mApp = (IRApplication) Objects.requireNonNull(this).getApplication();
         init();
+
+        setBackActive();
     }
 
     private void init() {
         recyclerView = findViewById(R.id.brand_recycler_view);
         Toolbar toolbar = findViewById(R.id.brand_list_toolbar);
+        fallback = findViewById(R.id.brand_list_failed_fallback);
 
         toolbar.setTitle("选择品牌" + "（" + deviceCategoryModel.getCategoryName() + "）");
 
@@ -71,9 +75,19 @@ public class BrandListActivity extends AppCompatActivity {
 
     }
 
-    private void requestBrandList() {
+    private void setBackActive() {
+        Toolbar toolbar = findViewById(R.id.brand_list_toolbar);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener(){
+            public void onClick(View view){
+                finish();
+            }
+        });
+    }
+
+    public void requestBrandList() {
         LinearLayout loading = findViewById(R.id.brand_list_loading);
         loading.setVisibility(View.VISIBLE);
+        fallback.setVisibility(View.GONE);
         ListBrandsCallback listBrandsCallback = new ListBrandsCallback() {
 
             @Override
@@ -86,13 +100,15 @@ public class BrandListActivity extends AppCompatActivity {
             @Override
             public void onListBrandsFailed() {
                 loading.setVisibility(View.GONE);
-                Log.e(TAG, "onListBrandsFailed: ");
+                fallback.setVisibility(View.VISIBLE);
+                ToastUtils.showToast(getApplicationContext(), "登录失败,请检查网络");
             }
 
             @Override
             public void onListBrandsError() {
                 loading.setVisibility(View.GONE);
-                Log.e(TAG, "onListBrandsError: " + deviceCategoryModel.getId());
+                fallback.setVisibility(View.VISIBLE);
+                ToastUtils.showToast(getApplicationContext(), "登录失败,请检查网络");
             }
         };
         mApp.mWeAPIs.listBrands(deviceCategoryModel.getId(),0, 50, listBrandsCallback);

@@ -51,7 +51,7 @@ public class WifiDeviceListAdapter extends RecyclerView.Adapter<WifiDeviceListAd
     @Override
     public void onBindViewHolder(@NonNull @NotNull WifiDeviceListAdapter.MyViewHolder holder, int position) {
         // 设置数据
-        holder.deviceName.setText(devicesList.get(position).SSID == "" ?
+        holder.deviceName.setText(util.isNull(devicesList.get(position).SSID) ?
                 "未知设备" : devicesList.get(position).SSID);
         holder.deviceIp.setText(devicesList.get(position).BSSID);
     }

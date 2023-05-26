@@ -39,16 +39,24 @@ public class util {
      * px 转换成 dip
      */
     public static int pxToDp(int px, Context context) {
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        return Math.round(px / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+        try {
+            DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
+            return Math.round(px / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+        }catch (Exception e) {
+            return 0;
+        }
     }
 
     /**
      * dip转化成px
      */
     public static int dpToPx(int dpValue, Context context) {
-        float scale = context.getResources().getDisplayMetrics().density;
-        return (int) (dpValue * scale + 0.5f);
+        try {
+            float scale = context.getResources().getDisplayMetrics().density;
+            return (int) (dpValue * scale + 0.5f);
+        }catch (Exception e) {
+            return 0;
+        }
     }
 
     /**
@@ -64,8 +72,13 @@ public class util {
                     new DeviceCategoryModel(R.drawable.ic_baseline_sweeping_robot_24,"扫地机器人", CATEGORY_ID_SWEEP)
             ));
 
-    public static String int2Decimal(int address) {
-        return ((address & 0xFF) + "." + ((address >> 8) & 0xFF) + "." + ((address >> 16) & 0xFF) + "." + (address >> 24 & 0xFF));
+    public static String int2Decimal(long address) {
+        long a = address & 0xFF;
+        long b = (address >> 8) & 0xFF;
+        long c = (address >> 16) & 0xFF;
+        long d = (address >> 24) & 0xFF;
+//        return (d + "." + c + "." + b + "." + a);
+        return (a + "." + b + "." + c + "." + d);
     }
 
     public static boolean LocationStateCheck(Context context) {
@@ -99,4 +112,17 @@ public class util {
             context.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
     }
+
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02X", b)); // 将每个字节转换为两位十六进制数
+        }
+        return sb.toString();
+    }
+
+    public static boolean isNull(String s) {
+        return s.trim() == "" || s == null;
+    }
+
 }

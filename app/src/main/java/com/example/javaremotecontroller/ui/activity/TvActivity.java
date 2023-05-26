@@ -21,10 +21,8 @@ import com.example.javaremotecontroller.util.util;
 import com.example.javaremotecontroller.view.RoundMenuView;
 
 import net.irext.webapi.WebAPICallbacks;
-import net.irext.webapi.bean.ACStatus;
 import net.irext.webapi.model.RemoteIndex;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -43,17 +41,17 @@ public class TvActivity extends AppCompatActivity implements View.OnClickListene
     private ArrayList<Map<Integer, int[]>> operatorKeyArray = new ArrayList();
     private int currentIndex = 1;
     private Boolean decoding = false;
-    private int POWER = 0;
-    private int MUTE = 1;
-    private int UP = 2;
-    private int DOWN = 3;
-    private int LEFT = 4;
-    private int RIGHT = 5;
-    private int VOLUME_PLUS = 7;
-    private int VOLUME_DECS = 8;
-    private int BACK = 9;
-    private int MENU = 11;
-    private int OK = 6;
+    private final int POWER = 0;
+    private final int MUTE = 1;
+    private final int UP = 2;
+    private final int DOWN = 3;
+    private final int LEFT = 4;
+    private final int RIGHT = 5;
+    private final int VOLUME_PLUS = 7;
+    private final int VOLUME_DECS = 8;
+    private final int BACK = 9;
+    private final int MENU = 11;
+    private final int OK = 6;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

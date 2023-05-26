@@ -3,7 +3,9 @@ package com.example.javaremotecontroller.communication;
 import android.Manifest;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothHidDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothServerSocket;
@@ -13,6 +15,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import com.example.javaremotecontroller.util.util;
 
@@ -33,6 +37,8 @@ public class BlueToothHelper {
     private static final UUID APP_UUID = UUID.fromString("a-b-c-d-e");
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 9999;
     private String TAG = "BLUE_TOOTH_HELPER";
+    private BluetoothHidDevice hidDevice;
+    private BluetoothHidDevice.Callback hidDeviceCallback;
 
     public BlueToothHelper() {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -205,6 +211,22 @@ public class BlueToothHelper {
     }
 
     /**
+     * 配对
+     * @param device
+     * @return
+     */
+    public boolean createBond(BluetoothDevice device) {
+        cancelDiscovery();
+        if(device.getBondState()==BluetoothDevice.BOND_NONE){
+            device.createBond();
+        }else if(device.getBondState() == BluetoothDevice.BOND_BONDED) {
+
+        }
+        return device.createBond();
+    }
+
+
+    /**
      * 获取客户端设备
      * @param name
      * @param uuid
@@ -290,10 +312,4 @@ public class BlueToothHelper {
         Log.e("TAG", "connectionFailed: ");
     }
 
-    private void connected(BluetoothDevice device){
-        if(connectTread != null) {
-            connectTread.cancel();
-            connectTread = null;
-        }
-    }
 }

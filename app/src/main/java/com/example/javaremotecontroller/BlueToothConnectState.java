@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 
 import com.example.javaremotecontroller.adapter.BlueToothDeviceListAdapter;
@@ -14,6 +15,7 @@ import com.example.javaremotecontroller.util.ToastUtils;
 import com.example.javaremotecontroller.util.util;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
@@ -24,9 +26,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.javaremotecontroller.databinding.ActivityBlueToothConnectStateBinding;
 
@@ -45,6 +45,7 @@ public class BlueToothConnectState extends AppCompatActivity implements View.OnC
     private TextView connectedCountView;
     private CardView refreshCircle;
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,7 +54,7 @@ public class BlueToothConnectState extends AppCompatActivity implements View.OnC
         setContentView(binding.getRoot());
         util.immersionStatusBar(this);
 
-        Toolbar toolbar = binding.toolbar;
+        Toolbar toolbar = binding.blueToothConnectStateToolbar;
         setSupportActionBar(toolbar);
         CollapsingToolbarLayout toolBarLayout = binding.toolbarLayout;
         toolBarLayout.setTitle(getTitle());
@@ -61,7 +62,9 @@ public class BlueToothConnectState extends AppCompatActivity implements View.OnC
         init();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     private void init() {
+        Context context = this;
         recyclerView = findViewById(R.id.blue_tooth_scan_device_recycler_view);
         refreshCircle = findViewById(R.id.refresh_blue_device_list);
         connectedRecycleView = findViewById(R.id.blue_tooth_connected_device_list);
@@ -78,6 +81,13 @@ public class BlueToothConnectState extends AppCompatActivity implements View.OnC
         registerReceiver(mReceiver, intentFilter);
 
         blueToothDeviceListAdapter = new BlueToothDeviceListAdapter(BlueToothConnectState.this, scanDevicesList);
+        blueToothDeviceListAdapter.setOnItemClick(new BlueToothDeviceListAdapter.ListItemClick() {
+            @Override
+            public void onClick(View v, ArrayList<BluetoothDevice> devList, BluetoothDevice device) {
+                ToastUtils.showToast(context, "配对：" + device.getName());
+                BlueToothHelper.getInstance().createBond(device);
+            }
+        });
         recyclerView.setAdapter(blueToothDeviceListAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(BlueToothConnectState.this));
 
@@ -85,8 +95,11 @@ public class BlueToothConnectState extends AppCompatActivity implements View.OnC
         connectedRecycleView.setAdapter(blueToothDeviceConnectedListAdapter);
         connectedRecycleView.setLayoutManager(new LinearLayoutManager(BlueToothConnectState.this));
 
+        connectedDevicesList.clear();
+        connectedDevicesList.addAll(BlueToothHelper.getInstance().getBondedDevices());
+        updateConnectedView();
+
         BlueToothHelper.getInstance().startDiscovery(this);
-        Log.e(TAG, "init: " + BlueToothHelper.getInstance().isDiscovering());
     }
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -99,8 +112,6 @@ public class BlueToothConnectState extends AppCompatActivity implements View.OnC
                     ToastUtils.showToast(BlueToothConnectState.this, "扫描开始");
                     Animation animation = AnimationUtils.loadAnimation(BlueToothConnectState.this, R.anim.rotate);
                     refreshCircle.startAnimation(animation);
-                    //初始化数据列表
-                    scanDevicesList.clear();
                     blueToothDeviceListAdapter.notifyDataSetChanged();
                     break;
                 case BluetoothAdapter.ACTION_DISCOVERY_FINISHED:
@@ -108,9 +119,9 @@ public class BlueToothConnectState extends AppCompatActivity implements View.OnC
                     break;
                 case BluetoothDevice.ACTION_ACL_CONNECTED:
                     // 已连接
-                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    connectedDevicesList.add(device);
-                    updateConnectedView();
+//                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+//                    connectedDevicesList.add(device);
+//                    updateConnectedView();
                     break;
                 case BluetoothDevice.ACTION_ACL_DISCONNECTED:
                     BluetoothDevice disconnectDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
@@ -132,8 +143,10 @@ public class BlueToothConnectState extends AppCompatActivity implements View.OnC
                 case BluetoothDevice.ACTION_FOUND:
                     // 已扫描到
                     BluetoothDevice device1 = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    scanDevicesList.add(device1);
-                    blueToothDeviceListAdapter.notifyDataSetChanged();
+                    if(device1.getBondState() != BluetoothDevice.BOND_BONDED){
+                        scanDevicesList.add(device1);
+                        blueToothDeviceListAdapter.notifyDataSetChanged();
+                    }
                     break;
                 case BluetoothDevice.ACTION_BOND_STATE_CHANGED:
                     BluetoothDevice remoteDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
@@ -190,6 +203,7 @@ public class BlueToothConnectState extends AppCompatActivity implements View.OnC
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(mReceiver);
+        BlueToothHelper.getInstance().cancelDiscovery();
     }
 
     @Override
@@ -197,6 +211,8 @@ public class BlueToothConnectState extends AppCompatActivity implements View.OnC
         switch (v.getId()){
             case R.id.refresh_blue_device_list:
                 BlueToothHelper.getInstance().startDiscovery(this);
+                scanDevicesList.clear();
+                blueToothDeviceListAdapter.notifyDataSetChanged();
                 break;
             default:
                 break;

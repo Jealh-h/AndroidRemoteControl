@@ -9,12 +9,17 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.TRANSMIT_IR" />
+    <uses-permission android:name="android.permission.RECEIVE_IR" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" /> <!-- Allows an app to access location in the background. 后台定位权限,api29，android10新增 -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+    <uses-feature
+        android:name="android.hardware.bluetooth_hci"
+        android:required="true" />
 
     <application
         android:name=".util.IRApplication"
@@ -25,7 +30,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.JavaRemoteController">
-        <activity android:name=".ui.activity.SweepRobotActivity"></activity>
+        <activity android:name=".ui.activity.ComputerActivity"></activity>
+        <activity android:name=".ui.activity.WifiDeviceDetail" />
+        <activity android:name=".ui.activity.SweepRobotActivity" />
         <activity android:name=".ui.activity.LampActivity" />
         <activity android:name=".ui.activity.SoundActivity" />
         <activity android:name=".ui.activity.FanActivity" />

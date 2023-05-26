@@ -25,4 +25,5 @@ public class InfraredHelper {
         irManager.transmit(56000, pattern);
         return true;
     }
+
 }

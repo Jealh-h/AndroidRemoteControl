@@ -4,11 +4,14 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toolbar;
 
 import com.example.javaremotecontroller.R;
+import com.example.javaremotecontroller.communication.InfraredHelper;
 import com.example.javaremotecontroller.model.BrandModel;
 import com.example.javaremotecontroller.util.IRApplication;
 import com.example.javaremotecontroller.util.ToastUtils;
@@ -18,6 +21,7 @@ import net.irext.webapi.WebAPICallbacks;
 import net.irext.webapi.model.RemoteIndex;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,6 +31,9 @@ public class SweepRobotActivity extends AppCompatActivity implements View.OnClic
     private TextView indicator;
     private IRApplication mApp;
     private int currentIndex = 1;
+    private String TAG = "SweepRobotActivity";
+    private boolean decoding = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +56,26 @@ public class SweepRobotActivity extends AppCompatActivity implements View.OnClic
 
     @Override
     public void onClick(View v) {
-        ToastUtils.showToast(this, "已发送");
+        switch (v.getId()){
+            case R.id.next_btn_sweep:
+                if(currentIndex + 1 > remoteIndexList.size()) {
+                    ToastUtils.showToast(v.getContext(), "已是最后一个");
+                    return;
+                }
+                currentIndex += 1;
+                indicator.setText(currentIndex + "/" + remoteIndexList.size());
+                break;
+            case R.id.pre_bt_sweep:
+                if(currentIndex <= 1){
+                    ToastUtils.showToast(v.getContext(), "已是第一个");
+                    return;
+                }
+                currentIndex -= 1;
+                indicator.setText(currentIndex + "/" + remoteIndexList.size());
+                break;
+            default:
+                break;
+        }
     }
 
     private void setBackActive() {
@@ -59,6 +85,26 @@ public class SweepRobotActivity extends AppCompatActivity implements View.OnClic
                 finish();
             }
         });
+    }
+
+    private void requestDecode(int keyCode) {
+        Context context = this;
+        ToastUtils.showToast(this, "解码中");
+        new Thread() {
+            @Override
+            public void run() {
+                int code[];
+                decoding = true;
+                RemoteIndex ri = remoteIndexList.get(currentIndex - 1);
+                code = mApp.mWeAPIs.decodeIR(ri.getId(), null,keyCode, 0,0,0);
+                Log.e(TAG, "run: " + Arrays.toString(code));
+                InfraredHelper.sendSignal(context, code);
+                Looper.prepare();
+                ToastUtils.showToast(context, "已发送");
+                decoding = false;
+                Looper.loop();
+            }
+        }.start();
     }
 
     private void requestIndex() {

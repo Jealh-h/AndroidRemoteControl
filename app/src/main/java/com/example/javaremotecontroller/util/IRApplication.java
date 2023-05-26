@@ -30,12 +30,12 @@ public class IRApplication extends com.activeandroid.app.Application {
 
         @Override
         public void onSignInFailed() {
-            Log.e(TAG, "sign in failed");
+            ToastUtils.showToastInUiThread(getApplicationContext(),"登录失败,请检查网络");
         }
 
         @Override
         public void onSignInError() {
-            Log.e(TAG, "sign in error");
+            ToastUtils.showToastInUiThread(getApplicationContext(), "登录失败,请检查网络");
         }
     };
 
