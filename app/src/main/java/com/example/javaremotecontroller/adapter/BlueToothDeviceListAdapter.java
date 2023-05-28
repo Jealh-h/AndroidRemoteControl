@@ -93,7 +93,7 @@ public class BlueToothDeviceListAdapter extends RecyclerView.Adapter<BlueToothDe
         if(this.listItemClick != null) {
             this.listItemClick.onClick(v, devicesList, device);
         }else {
-            BluetoothHidHelper.connect(device);
+            BluetoothHidHelper.connect(device.getAddress());
             Intent intent = new Intent(context, ComputerActivity.class);
             intent.putExtra(util.BLUE_TOOTH_DEVICE_CARRY_DATA_KEY, device.getAddress());
             context.startActivity(intent);

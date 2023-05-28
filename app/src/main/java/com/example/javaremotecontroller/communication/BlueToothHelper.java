@@ -146,25 +146,6 @@ public class BlueToothHelper {
         return bluetoothDeviceArrayList;
     }
 
-    public String getConnectStateString(Context context) {
-        BluetoothAdapter bluetoothAdapter = mBluetoothAdapter.getDefaultAdapter();
-        if (mBluetoothAdapter.isEnabled()) { // 确保蓝牙已开启
-            BluetoothManager bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
-            List<BluetoothDevice> connectedDevices = bluetoothManager.getConnectedDevices(BluetoothProfile.GATT);
-            if (!connectedDevices.isEmpty()) {
-                // 蓝牙设备已连接
-                // 执行操作
-                return "已连接(" + connectedDevices.size() + ")";
-            } else {
-                // 蓝牙设备未连接
-                return "未连接";
-            }
-        } else {
-            // 蓝牙未开启
-            return "未开启";
-        }
-    }
-
     /**
      * 开始搜索
      */

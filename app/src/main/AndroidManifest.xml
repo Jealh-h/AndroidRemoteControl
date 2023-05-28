@@ -30,13 +30,30 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.JavaRemoteController">
-        <activity android:name=".ui.activity.ComputerActivity"></activity>
-        <activity android:name=".ui.activity.WifiDeviceDetail" />
-        <activity android:name=".ui.activity.SweepRobotActivity" />
-        <activity android:name=".ui.activity.LampActivity" />
-        <activity android:name=".ui.activity.SoundActivity" />
-        <activity android:name=".ui.activity.FanActivity" />
-        <activity android:name=".ui.activity.TvActivity" />
+        <activity
+            android:name=".ui.activity.KeyboardActivity"
+            android:screenOrientation="landscape" />
+        <activity
+            android:name=".ui.activity.ComputerActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.WifiDeviceDetail"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.SweepRobotActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.LampActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.SoundActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.FanActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.TvActivity"
+            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="irext_app_key"
@@ -48,21 +65,27 @@
         <activity
             android:name=".WifiDeviceConnectState"
             android:label="@string/title_activity_wifi_device_connect_state"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.JavaRemoteController.NoActionBar" />
         <activity
             android:name=".BlueToothConnectState"
             android:label="@string/title_activity_blue_tooth_connect_state"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.JavaRemoteController.NoActionBar" />
         <activity android:name=".AirConditionPanel" />
         <activity
             android:name=".BlueToothDeviceDetail"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_blue_tooth_device_detail"
+            android:screenOrientation="portrait"
             android:theme="@style/Theme.JavaRemoteController.Fullscreen" />
         <activity
             android:name=".NavPageActivity"
-            android:label="@string/title_activity_nav_page" />
-        <activity android:name=".MainActivity">
+            android:label="@string/title_activity_nav_page"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

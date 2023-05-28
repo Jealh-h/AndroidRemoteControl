@@ -5,6 +5,10 @@ public class HidMessage {
     public DeviceType deviceType;
     public static State sendState = State.None;
     public byte[] reportData;
+    public static final byte KeyBoardReportID = 0x02;
+    public static final byte MouseReportID = 0x01;
+    public static final byte MediaReportID = 0x03;
+
 
     public HidMessage(DeviceType deviceType, byte reportId, byte[] data){
         this.deviceType = deviceType;
@@ -13,7 +17,7 @@ public class HidMessage {
     }
 
     public enum DeviceType {
-        None,Mouse,Keyboard
+        None,Mouse,Keyboard,Media
     }
 
     public enum State {

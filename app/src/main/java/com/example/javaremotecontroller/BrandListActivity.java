@@ -26,7 +26,7 @@ import net.irext.webapi.model.*;
 import net.irext.webapi.WebAPICallbacks.*;
 
 
-public class BrandListActivity extends AppCompatActivity {
+public class BrandListActivity extends AppCompatActivity implements View.OnClickListener {
 
     private List<Brand> brandList = new ArrayList();
     private String TAG = "WEB_API_DEBUG";
@@ -112,5 +112,16 @@ public class BrandListActivity extends AppCompatActivity {
             }
         };
         mApp.mWeAPIs.listBrands(deviceCategoryModel.getId(),0, 50, listBrandsCallback);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.reload_brand_list_btn:
+                requestBrandList();
+                break;
+            default:
+                break;
+        }
     }
 }

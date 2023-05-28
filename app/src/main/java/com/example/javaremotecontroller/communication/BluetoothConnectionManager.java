@@ -19,11 +19,9 @@ public class BluetoothConnectionManager {
     private BluetoothAdapter bluetoothAdapter;
     private ConnectThread connectThread;
     private ConnectedThread connectedThread;
-    private Handler mHandler;
 
-    public BluetoothConnectionManager(Handler handler) {
+    public BluetoothConnectionManager() {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        mHandler = handler;
     }
 
     public boolean isBluetoothEnabled() {

@@ -16,6 +16,8 @@ import com.example.javaremotecontroller.model.DeviceCategoryModel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class util {
     /**
@@ -125,4 +127,16 @@ public class util {
         return s.trim() == "" || s == null;
     }
 
+    public static TimerTask startDelayTask(final Runnable runnable, int delay) {
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                runnable.run();
+                this.cancel();
+            }
+        };
+        timer.schedule(task, delay);
+        return task;
+    }
 }
