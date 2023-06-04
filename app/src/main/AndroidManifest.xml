@@ -30,6 +30,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.JavaRemoteController">
+        <activity android:name=".ui.activity.WiFiStopWatch"></activity>
         <activity
             android:name=".ui.activity.KeyboardActivity"
             android:screenOrientation="landscape" />
@@ -72,7 +73,7 @@
             android:label="@string/title_activity_blue_tooth_connect_state"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.JavaRemoteController.NoActionBar" />
-        <activity android:name=".AirConditionPanel" />
+        <activity android:name=".ui.activity.AirConditionPanel" />
         <activity
             android:name=".BlueToothDeviceDetail"
             android:configChanges="orientation|keyboardHidden|screenSize"

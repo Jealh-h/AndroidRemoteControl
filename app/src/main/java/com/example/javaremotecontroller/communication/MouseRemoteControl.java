@@ -47,6 +47,21 @@ public class MouseRemoteControl {
         BluetoothHidHelper.postReport(MouseReport);
     }
 
+    public static void onLeftDownMove(int deltaX, int deltaY) {
+        if(MouseReport.sendState.equals(HidMessage.State.Sending))
+            return;
+        deltaX = deltaX > BluetoothHidHelper.MAX_BYTE_DECIMAL ? BluetoothHidHelper.MAX_BYTE_DECIMAL : deltaX;
+        deltaX = deltaX < -BluetoothHidHelper.MAX_BYTE_DECIMAL ? -BluetoothHidHelper.MAX_BYTE_DECIMAL : deltaX;
+        deltaY = deltaY > BluetoothHidHelper.MAX_BYTE_DECIMAL ? BluetoothHidHelper.MAX_BYTE_DECIMAL : deltaY;
+        deltaY = deltaY < -BluetoothHidHelper.MAX_BYTE_DECIMAL ? -BluetoothHidHelper.MAX_BYTE_DECIMAL : deltaY;
+
+        MouseReport.reportData[0] |= 1;
+        MouseReport.reportData[1] = (byte) deltaX;
+        MouseReport.reportData[2] = (byte) deltaY;
+        MouseReport.reportData[3] = 0;
+        BluetoothHidHelper.postReport(MouseReport);
+    }
+
     public static void simulatedLeftClick(int delay) {
         onMouseLeftDown();
         util.startDelayTask(new Runnable() {

@@ -40,7 +40,7 @@ import static com.example.javaremotecontroller.communication.BluetoothHidHelper.
 public class ComputerActivity extends AppCompatActivity implements View.OnTouchListener {
     private Button leftMouseBtn, rightMouseBtn;
     private LinearLayout touchBoard;
-    private ImageButton volumeInc, volumeDec, brightNessInc, brightNessDec;
+    private Boolean doubleClick = false;
     private BluetoothGattHelper bluetoothGattHelper = new BluetoothGattHelper(this);
     private BluetoothDevice bluetoothDevice;
     private BluetoothConnectionManager bluetoothConnectionManager = new BluetoothConnectionManager();
@@ -115,14 +115,19 @@ public class ComputerActivity extends AppCompatActivity implements View.OnTouchL
             case MotionEvent.ACTION_MOVE:
                 switch (id) {
                     case R.id.touch_board:
-                        Log.e(HID_DEBUG_TAG, "onTouch: " + event.getPointerCount());
                         if (BluetoothHidHelper.isConnect()) {
                             if (event.getPointerCount() == 1) {
                                 int deltaX = (int) ((event.getX() - xStart) * rate);
                                 int deltaY = (int) ((event.getY() - yStart) * rate);
-                                MouseRemoteControl.onMouseMove(deltaX, deltaY, 0);
+
+                                if(doubleClick) {
+                                    MouseRemoteControl.onLeftDownMove(deltaX, deltaY);
+                                }else {
+                                    MouseRemoteControl.onMouseMove(deltaX, deltaY, 0);
+                                }
+
                             } else if (event.getPointerCount() == 2) {
-                                int delta = (int) ((event.getY(0) - yStart) * (rate - 0.1));
+                                int delta = (int) ((event.getY(0) - yStart) * (rate - 0.5));
                                 MouseRemoteControl.onMouseMove(0, 0, delta);
                             }
                         }
@@ -156,13 +161,25 @@ public class ComputerActivity extends AppCompatActivity implements View.OnTouchL
                 maxPointerCount = event.getPointerCount();
                 xStart = event.getX();
                 yStart = event.getY();
-                if (!dir)
+                if (!dir) { // 按压
+                    // 双击
+                    long now = new Date().getTime();
+                    Log.e("TIMER_TEST", "handleBtnClick: "+ (now - touchBoardContinueTime) );
+                    if(now - touchBoardContinueTime >= 50 && now - touchBoardContinueTime <=250) {
+                        doubleClick = true;
+                        return true;
+                    }
+//                    MouseRemoteControl.onMouseLeftDown();
                     touchBoardContinueTime = new Date().getTime();
+                }
                 else {
                     long timeDiff = new Date().getTime() - touchBoardContinueTime;
                     // 按下抬起时间差距较小，视为点击
                     if (timeDiff >= 50 && timeDiff <= 150) {
                         MouseRemoteControl.simulatedLeftClick(20);
+                    }else { // 视为抬起
+                        MouseRemoteControl.onMouseLeftUp();
+                        doubleClick = false;
                     }
                 }
                 return true;

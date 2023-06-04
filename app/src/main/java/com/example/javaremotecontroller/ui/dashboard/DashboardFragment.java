@@ -38,12 +38,6 @@ import java.util.ArrayList;
 public class DashboardFragment extends Fragment {
 
     private FragmentDashboardBinding binding;
-    private Toast mToast;
-
-
-    RecyclerView recyclerView;
-    BlueToothDeviceListAdapter mAdapter;
-    ArrayList<BluetoothDevice> mDeviceList = new ArrayList<>();
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -118,42 +112,6 @@ public class DashboardFragment extends Fragment {
         setOnClick(cardView, model);
 
         return cardView;
-
-        //                <androidx.cardview.widget.CardView
-//        app:cardCornerRadius="8dp"
-//        app:contentPadding="8dp"
-//        android:layout_columnWeight="1"
-//        android:layout_margin="10dp"
-//        android:layout_width="wrap_content"
-//        android:layout_height="wrap_content"
-//                >
-//            <LinearLayout
-//        android:layout_width="match_parent"
-//        android:layout_height="wrap_content"
-//        android:orientation="vertical">
-//                <ImageView
-//        android:layout_width="match_parent"
-//        android:layout_height="wrap_content"
-//        android:src="@drawable/ic_baseline_live_tv_24"/>
-//                <TextView
-//        android:layout_width="match_parent"
-//        android:layout_height="wrap_content"
-//        android:textAlignment="center"
-//        android:text="电视"/>
-//            </LinearLayout>
-//        </androidx.cardview.widget.CardView>
-    }
-
-    //设置toast的标准格式
-    private void showToast(String text){
-        if(mToast == null){
-            mToast = Toast.makeText(getActivity(), text,Toast.LENGTH_SHORT);
-        }
-        else {
-            mToast.setText(text);
-        }
-        mToast.show();
-
     }
 
     @Override

@@ -8,7 +8,7 @@ import android.widget.Toast;
 import java.util.Arrays;
 
 public class InfraredHelper {
-    private static String TAG = "红外";
+    private static String TAG = "WEB_API_DEBUG";
 
     public static boolean sendSignal(Context context, int[] pattern) {
         // 获取 ConsumerIrManager 对象
@@ -22,7 +22,7 @@ public class InfraredHelper {
         Log.e(TAG, Arrays.toString(pattern));
         // 通过 ConsumerIrManager 对象发送红外信号
         irManager.transmit(38000, pattern);
-        irManager.transmit(56000, pattern);
+//        irManager.transmit(56000, pattern);
         return true;
     }
 

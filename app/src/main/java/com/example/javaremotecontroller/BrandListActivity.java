@@ -101,14 +101,14 @@ public class BrandListActivity extends AppCompatActivity implements View.OnClick
             public void onListBrandsFailed() {
                 loading.setVisibility(View.GONE);
                 fallback.setVisibility(View.VISIBLE);
-                ToastUtils.showToast(getApplicationContext(), "登录失败,请检查网络");
+                ToastUtils.showToast(getApplicationContext(), "获取品牌列表失败,请检查网络");
             }
 
             @Override
             public void onListBrandsError() {
                 loading.setVisibility(View.GONE);
                 fallback.setVisibility(View.VISIBLE);
-                ToastUtils.showToast(getApplicationContext(), "登录失败,请检查网络");
+                ToastUtils.showToast(getApplicationContext(), "获取品牌列表失败,请检查网络");
             }
         };
         mApp.mWeAPIs.listBrands(deviceCategoryModel.getId(),0, 50, listBrandsCallback);

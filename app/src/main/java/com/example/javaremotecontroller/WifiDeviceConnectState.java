@@ -1,41 +1,36 @@
 package com.example.javaremotecontroller;
 
+import android.content.Intent;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiInfo;
 import android.os.Bundle;
 
-import com.example.javaremotecontroller.adapter.BlueToothDeviceListAdapter;
 import com.example.javaremotecontroller.adapter.WifiDeviceListAdapter;
 import com.example.javaremotecontroller.communication.WiFiHelper;
+import com.example.javaremotecontroller.ui.activity.WiFiStopWatch;
+import com.example.javaremotecontroller.util.Esp8266Helper;
 import com.example.javaremotecontroller.util.util;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 import com.example.javaremotecontroller.databinding.ActivityWifiDeviceConnectStateBinding;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-import java.net.InetAddress;
-import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 
-public class WifiDeviceConnectState extends AppCompatActivity implements View.OnClickListener {
+public class WifiDeviceConnectState extends AppCompatActivity {
 
     private ActivityWifiDeviceConnectStateBinding binding;
     private WiFiHelper wifiHelper;
@@ -55,10 +50,29 @@ public class WifiDeviceConnectState extends AppCompatActivity implements View.On
 
         Toolbar toolbar = binding.wifiConnectStateToolbar;
         setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+        toolbar.setNavigationOnClickListener(view -> finish());
+
         CollapsingToolbarLayout toolBarLayout = binding.toolbarLayout;
         toolBarLayout.setTitle(getTitle());
 
         init();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_toolbar_single_item, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Intent intent = new Intent(this, WiFiStopWatch.class);
+        startActivity(intent);
+        return super.onOptionsItemSelected(item);
     }
 
     private void init() {
@@ -90,44 +104,5 @@ public class WifiDeviceConnectState extends AppCompatActivity implements View.On
         wifiDeviceListAdapter.notifyDataSetChanged();
 
         util.immersionStatusBar(this);
-    }
-
-    private void sendToESP(String msg) {
-        WifiInfo wifiInfo = wifiHelper.getConnectionInfo();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    InetAddress serverAddr = InetAddress.getByName("192.168.4.1"); // 输入ESP8266的IP地址
-                    Socket socket = new Socket(serverAddr, 80);
-                    // 发送指令
-                    OutputStreamWriter writer = new OutputStreamWriter(socket.getOutputStream(), "UTF-8");
-                    String message = "GET " + msg + "HTTP/1.1\r\n\r\n";
-                    writer.write(message);
-                    writer.flush();
-
-                    // 读取响应
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                    String response = reader.readLine();
-
-                    reader.close();
-                    writer.close();
-                    socket.close();
-                    Log.e(TAG, "response: " + msg + response );
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.e(TAG, "run: " + msg + e.toString() );
-                }
-            }
-        }).start();
-    }
-
-    @Override
-    public void onClick(View v) {
-        if(v.getId()==R.id.clean) {
-            sendToESP("time");
-        }else {
-            sendToESP("安卓发送时间：" + new Date().toString());
-        }
     }
 }

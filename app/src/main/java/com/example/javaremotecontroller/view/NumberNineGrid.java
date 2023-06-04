@@ -41,8 +41,8 @@ public class NumberNineGrid extends FrameLayout implements View.OnClickListener 
         numView.findViewById(R.id.tv_7).setOnClickListener(this);
         numView.findViewById(R.id.tv_8).setOnClickListener(this);
         numView.findViewById(R.id.tv_9).setOnClickListener(this);
-//        numView.findViewById(R.id.tv_del).setOnClickListener(this);
-//        numView.findViewById(R.id.tv_done).setOnClickListener(this);
+        numView.findViewById(R.id.tv_del).setOnClickListener(this);
+        numView.findViewById(R.id.tv_done).setOnClickListener(this);
         LayoutParams params = new LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
         this.addView(numView, params);
     }
@@ -85,12 +85,12 @@ public class NumberNineGrid extends FrameLayout implements View.OnClickListener 
             case R.id.tv_9:
                 onNumKeyBoardLister.onNumLister(9);
                 break;
-//            case R.id.tv_del:
-//                onNumKeyBoardLister.onDelLister();
-//                break;
-//            case R.id.tv_done:
-//                onNumKeyBoardLister.onDownLister();
-//                break;
+            case R.id.tv_del:
+                onNumKeyBoardLister.onDelLister();
+                break;
+            case R.id.tv_done:
+                onNumKeyBoardLister.onDownLister();
+                break;
             default:
                 break;
         }

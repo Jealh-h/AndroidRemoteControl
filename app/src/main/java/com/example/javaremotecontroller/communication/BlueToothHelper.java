@@ -151,11 +151,11 @@ public class BlueToothHelper {
      */
     public void startDiscovery(Activity activity) {
        if (isDiscovering()) {
-            mBluetoothAdapter.cancelDiscovery();
+            return;
         }
-//        if(activity.checkPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
-//
-//        }
+       if(!isEnabled()) {
+           enabledBluetooth(activity);
+       }
         if(!util.LocationStateCheck(activity)) {
             util.openLocationSetting(activity);
         }

@@ -5,11 +5,8 @@ import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,7 +15,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -34,7 +30,6 @@ import com.example.javaremotecontroller.adapter.BlueToothDeviceListAdapter;
 import com.example.javaremotecontroller.communication.BlueToothHelper;
 import com.example.javaremotecontroller.communication.WiFiHelper;
 import com.example.javaremotecontroller.databinding.FragmentHomeBinding;
-import com.example.javaremotecontroller.util.util;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -67,11 +62,6 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
                         bluetoothDeviceArrayList);
         recyclerView.setAdapter(blueToothDeviceListAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-
-//        final Switch wifiSwitch = root.findViewById(R.id.wifi_switch_home);
-//        wifiInfoTextView = root.findViewById(R.id.wifi_info);
-
-//        wifiSwitch.setOnCheckedChangeListener(this);
 
         notificationManager = (NotificationManager) getActivity().getSystemService(NOTIFICATION_SERVICE);
 
@@ -167,26 +157,6 @@ public class HomeFragment extends Fragment implements CompoundButton.OnCheckedCh
                 break;
             default:
                 break;
-        }
-    }
-
-    class BtFoundReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
-            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                Log.e(TAG, "onReceive: " + device.toString() );
-                //判断是否配对过
-                if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
-                    bluetoothDeviceArrayList.add(device);
-                    Log.e(TAG, "onReceive: " + device.getName() );
-                }
-            }else if(BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
-                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.ACTION_ACL_CONNECTED);
-                Log.e(TAG, "onReceive: " + device.getName() );
-            }
         }
     }
 

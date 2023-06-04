@@ -43,9 +43,9 @@ public class WiFiHelper {
 
     public boolean setWifiDisabled() {
         // android api 28 及以下有效
-        if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.P){
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
             return wifiManager.setWifiEnabled(false);
-        }else {
+        } else {
             Toast.makeText(context, "wifi 未打开，请打开 wifi", Toast.LENGTH_LONG).show();
             return false;
         }
@@ -53,6 +53,7 @@ public class WiFiHelper {
 
     /**
      * wifi 开关状态
+     *
      * @return
      */
     public int getWifiState() {
@@ -61,16 +62,23 @@ public class WiFiHelper {
 
     /**
      * wifi 是否连接
+     *
      * @return
      */
     public boolean isWifiConnect() {
         WifiInfo wifiInfo = wifiManager.getConnectionInfo();
         Log.e("DEBUG", "isWifiConnect: " + wifiInfo.toString());
-        return wifiInfo != null;
+        if(wifiInfo==null) {
+            return false;
+        }else if(wifiInfo.getBSSID()=="null") {
+            return false;
+        }
+        return true;
     }
 
     /**
      * 获取连接信息
+     *
      * @return WifiInfo
      */
     public WifiInfo getConnectionInfo() {
@@ -79,16 +87,17 @@ public class WiFiHelper {
 
     /**
      * 获取SSID
+     *
      * @return
      */
     public String getSSID() {
-        if(Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1){
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O_MR1) {
             ConnectivityManager connManager = (ConnectivityManager) context.getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
             assert connManager != null;
             NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
             if (networkInfo.isConnected()) {
-                if (networkInfo.getExtraInfo()!=null){
-                    return networkInfo.getExtraInfo().replace("\"","");
+                if (networkInfo.getExtraInfo() != null) {
+                    return networkInfo.getExtraInfo().replace("\"", "");
                 }
             }
         }
@@ -98,34 +107,10 @@ public class WiFiHelper {
         return info.getSSID().replace("\"", "");
     }
 
-    public ArrayList<String> scanDevicesInNetwork() {
-        final ArrayList<String> deviceList = new ArrayList<>();
-
-        WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
-        DhcpInfo dhcpInfo = wifiManager.getDhcpInfo();
-        String gateway = Formatter.formatIpAddress(dhcpInfo.gateway);
-
-        for (int i = 1; i <= 254; i++) {
-            String ipAddress = gateway.substring(0, gateway.lastIndexOf(".") + 1) + i;
-            try {
-                InetAddress inetAddress = InetAddress.getByName(ipAddress);
-                deviceList.add(inetAddress.getHostAddress());
-//                if (inetAddress.isReachable(1000)) {
-//                    deviceList.add(inetAddress.getHostAddress());
-//                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        // 处理设备列表
-        // ...
-        return deviceList;
-    }
-
 
     /**
      * 获取设备周围的Wi-Fi网络列表
+     *
      * @return
      */
     public List<ScanResult> getScanResults() {
@@ -166,50 +151,19 @@ public class WiFiHelper {
 
         try {
             BufferedReader br = new BufferedReader(new FileReader("/proc/net/arp"));
-            String line,totalText = "";
-            while((line = br.readLine())!=null){
+            String line, totalText = "";
+            while ((line = br.readLine()) != null) {
                 totalText += line;
                 String[] splitted = line.split(" +");
-                if(splitted !=null && splitted.length ==4){
+                if (splitted != null && splitted.length == 4) {
                     String ip = splitted[0];
                     connectedIP.add(ip);
                 }
             }
-            Log.e("wifi->getConnectedIPs", totalText );
-        }catch (Exception e){
+            Log.e("wifi->getConnectedIPs", totalText);
+        } catch (Exception e) {
             Log.e("wifi->getConnectedIPs", e.toString());
         }
         return connectedIP;
-    }
-}
-
-class HttpRequestTask extends AsyncTask<String, Void, String> {
-    @Override
-    protected String doInBackground(String... params) {
-        String url = params[0];
-        String result = "";
-        try {
-            URL obj = new URL(url);
-            HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-            // 发送GET请求
-            con.setRequestMethod("GET");
-            int responseCode = con.getResponseCode();
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            StringBuffer response = new StringBuffer();
-
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-
-            // 打印响应结果
-            result = response.toString();
-        } catch (IOException e) {
-            e.printStackTrace();
-            result = "Error: " + e.getMessage();
-        }
-        return result;
     }
 }

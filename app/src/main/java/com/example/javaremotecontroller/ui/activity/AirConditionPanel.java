@@ -1,4 +1,4 @@
-package com.example.javaremotecontroller;
+package com.example.javaremotecontroller.ui.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -10,11 +10,13 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toolbar;
 
+import com.example.javaremotecontroller.R;
 import com.example.javaremotecontroller.communication.InfraredHelper;
 import com.example.javaremotecontroller.model.BrandModel;
 import com.example.javaremotecontroller.util.IRApplication;
 import com.example.javaremotecontroller.util.ToastUtils;
 import com.example.javaremotecontroller.util.util;
+import com.google.gson.Gson;
 
 import net.irext.webapi.WebAPICallbacks;
 import net.irext.webapi.bean.ACStatus;
@@ -42,6 +44,7 @@ public class AirConditionPanel extends AppCompatActivity implements View.OnClick
     private int SWEEP_WIND = 10;
     private int currentIndex = 1;
     private boolean decoding = false;
+    private ACStatus acStatus = new ACStatus(0, 0, 4, 0, 0, 0, 0, 0);
     /**
      * 按键-红外 map 数组
      */
@@ -72,7 +75,6 @@ public class AirConditionPanel extends AppCompatActivity implements View.OnClick
             public void onListIndexesSuccess(List<RemoteIndex> list) {
                 remoteIndexList = list;
                 indicator.setText(currentIndex + "/" + remoteIndexList.size());
-                requestDecode();
             }
 
             @Override
@@ -85,94 +87,69 @@ public class AirConditionPanel extends AppCompatActivity implements View.OnClick
                 Log.e(TAG, "onListIndexesError: ");
             }
         };
-        mApp.mWeAPIs.listRemoteIndexes(brandModel.getCategoryId(),brandModel.getId(),null,null,0,listIndexesCallback);
+        mApp.mWeAPIs.listRemoteIndexes(brandModel.getCategoryId(), brandModel.getId(), null, null, 0, listIndexesCallback);
     }
 
     /**
      * 解码
      */
-    private void requestDecode() {
+    private void requestDecode(int keyCode) {
         Context context = this;
+        ToastUtils.showToast(this, "解码中");
         new Thread() {
             @Override
             public void run() {
                 int code[];
-                Map<Integer, int[]> map = new HashMap();
                 decoding = true;
-                Log.e(TAG, "decode " + decoding);
-                try {
-                    operatorKeyArray.get(currentIndex - 1);
-                } catch (IndexOutOfBoundsException  e) {
-                    try {
-                        RemoteIndex ri = remoteIndexList.get(currentIndex - 1);
-                        // 电源
-                        code = mApp.mWeAPIs.decodeIR(ri.getId(), new ACStatus(),POWER, 0,0,0);
-                        map.put(POWER, code);
-                        // 温度 +
-                        code = mApp.mWeAPIs.decodeIR(ri.getId(), new ACStatus(),TEMP_PLUS, 0,0,0);
-                        map.put(TEMP_PLUS, code);
-                        // 温度 -
-                        code = mApp.mWeAPIs.decodeIR(ri.getId(), new ACStatus(),TEMP_DECS, 0,0,0);
-                        map.put(TEMP_DECS, code);
-                        // 模式
-                        code = mApp.mWeAPIs.decodeIR(ri.getId(), new ACStatus(),MODE, 0,0,0);
-                        map.put(MODE, code);
-                        // 风力
-                        code = mApp.mWeAPIs.decodeIR(ri.getId(), new ACStatus(),WIND_POWER, 0,0,0);
-                        map.put(WIND_POWER, code);
-                        // 扫风
-                        code = mApp.mWeAPIs.decodeIR(ri.getId(), new ACStatus(),SWEEP_WIND, 0,0,0);
-                        map.put(SWEEP_WIND, code);
-                        operatorKeyArray.add(map);
-                        Looper.prepare();
-                        ToastUtils.showToast(context, "解码完成");
-                        decoding = false;
-                        Looper.loop();
-                    }catch (Exception exp) {
-                        Log.e(TAG, "run: " + exp.toString() );
-                    }
-                }
+                RemoteIndex ri = remoteIndexList.get(currentIndex - 1);
+                code = mApp.mWeAPIs.decodeIR(ri.getId(), acStatus, keyCode, 0, 0, 0);
+                Log.e(TAG, "run: " + ":" + ri.getId());
+                InfraredHelper.sendSignal(context, code);
+
+                Looper.prepare();
+                ToastUtils.showToast(context, "已发送");
+                decoding = false;
+                Looper.loop();
             }
         }.start();
     }
 
     /**
      * 按键处理
+     *
      * @param v
      */
     @Override
     public void onClick(View v) {
-        Log.e(TAG, "air_condition_click: " + currentIndex + "|" + operatorKeyArray.size() + decoding );
-        if(operatorKeyArray.size() == 0) {
+        Log.e(TAG, "onClick: " + new Gson().toJson(acStatus, acStatus.getClass()));
+        if (decoding) {
+            ToastUtils.showToast(this, "解码中");
             return;
         }
-        if(decoding) {
-            ToastUtils.showToast(this, "解码中,请稍等");
-            return;
-        }
-        Map<Integer, int[]> m = operatorKeyArray.get(currentIndex - 1);
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.ac_power:
-                int[] code = m.get(POWER);
-                Log.e(TAG, "air_condition_click: " + Arrays.toString(code) );
-                InfraredHelper.sendSignal(this, code);
+                acStatus.setAcPower(acStatus.getAcPower() == 0 ? 1 : 0);
+                requestDecode(POWER);
                 break;
             case R.id.temp_incs:
-                InfraredHelper.sendSignal(this, m.get(TEMP_PLUS));
+                acStatus.setAcTemp(acStatus.getAcTemp() + 1 > 12 ? 12 : acStatus.getAcTemp() + 1 );
+                requestDecode(TEMP_PLUS);
                 break;
             case R.id.temp_decs:
-                InfraredHelper.sendSignal(this, m.get(TEMP_DECS));
+                acStatus.setAcTemp(acStatus.getAcTemp() - 1 < 0 ? 0 : acStatus.getAcTemp() - 1);
+                requestDecode(TEMP_DECS);
                 break;
             case R.id.wind_power_incs:
-                InfraredHelper.sendSignal(this, m.get(WIND_POWER));
+                acStatus.setAcWindSpeed(acStatus.getAcWindSpeed() + 1);
+                requestDecode(WIND_POWER);
                 break;
             case R.id.sweep_horizontal:
             case R.id.sweep_vertical:
-                InfraredHelper.sendSignal(this, m.get(SWEEP_WIND));
+                requestDecode(SWEEP_WIND);
                 break;
             case R.id.pre_btn:
                 int index = currentIndex - 1;
-                if(index <= 0) {
+                if (index <= 0) {
                     ToastUtils.showToast(v.getContext(), "已是第一个");
                     return;
                 }
@@ -181,12 +158,11 @@ public class AirConditionPanel extends AppCompatActivity implements View.OnClick
                 break;
             case R.id.next_btn:
                 int index_2 = currentIndex + 1;
-                if(index_2 > remoteIndexList.size()) {
+                if (index_2 > remoteIndexList.size()) {
                     ToastUtils.showToast(v.getContext(), "已是最后一个");
                     return;
                 }
                 currentIndex += 1;
-                requestDecode();
                 indicator.setText(currentIndex + "/" + remoteIndexList.size());
                 break;
             default:
@@ -196,8 +172,8 @@ public class AirConditionPanel extends AppCompatActivity implements View.OnClick
 
     private void setBackActive() {
         Toolbar toolbar = findViewById(R.id.ac_operation_toolbar);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener(){
-            public void onClick(View view){
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
                 finish();
             }
         });

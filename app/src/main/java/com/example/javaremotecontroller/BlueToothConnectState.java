@@ -11,11 +11,14 @@ import android.os.Bundle;
 
 import com.example.javaremotecontroller.adapter.BlueToothDeviceListAdapter;
 import com.example.javaremotecontroller.communication.BlueToothHelper;
+import com.example.javaremotecontroller.ui.activity.WiFiStopWatch;
 import com.example.javaremotecontroller.util.ToastUtils;
 import com.example.javaremotecontroller.util.util;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
@@ -23,6 +26,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -56,10 +61,17 @@ public class BlueToothConnectState extends AppCompatActivity implements View.OnC
 
         Toolbar toolbar = binding.blueToothConnectStateToolbar;
         setSupportActionBar(toolbar);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
+        toolbar.setNavigationOnClickListener(view -> finish());
         CollapsingToolbarLayout toolBarLayout = binding.toolbarLayout;
         toolBarLayout.setTitle(getTitle());
 
         init();
+
+
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -100,6 +112,19 @@ public class BlueToothConnectState extends AppCompatActivity implements View.OnC
         updateConnectedView();
 
         BlueToothHelper.getInstance().startDiscovery(this);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_toolbar_single_item, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        Intent intent = new Intent(this, WiFiStopWatch.class);
+        startActivity(intent);
+        return super.onOptionsItemSelected(item);
     }
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
@@ -190,6 +215,7 @@ public class BlueToothConnectState extends AppCompatActivity implements View.OnC
     @Override
     protected void onPause() {
         super.onPause();
+        BlueToothHelper.getInstance().cancelDiscovery();
         Log.e(TAG, "onPause: ");
     }
 

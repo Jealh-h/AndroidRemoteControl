@@ -21,11 +21,13 @@ import com.example.javaremotecontroller.fragments.BlankFragment;
 import com.example.javaremotecontroller.ui.dashboard.DashboardFragment;
 import com.example.javaremotecontroller.ui.home.HomeFragment;
 import com.example.javaremotecontroller.ui.notifications.NotificationsFragment;
+import com.example.javaremotecontroller.util.IRApplication;
 import com.example.javaremotecontroller.util.SqliteHelper;
 import com.example.javaremotecontroller.util.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 底部导航按钮枚举
@@ -50,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView bottomNavHome, bottomNavDashboard, bottomNavMine;
     private LinearLayout bottomNavHomeWrapper, bottomNavDashboardWrapper, bottomNavMineWrapper;
     private CardView indicator;
+    private IRApplication mApp;
     private List<Integer> offsetArray = new ArrayList<>();
     private Integer currentIndex = 0;
     private Integer innerPadding  = 8;
@@ -65,6 +68,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         util.immersionStatusBar(this);
         sqliteHelper = new SqliteHelper(this, "REMOTE_CONTROLER", 1);
         new BluetoothHidHelper(this);
+        mApp = (IRApplication) Objects.requireNonNull(this).getApplication();
     }
 
     @Override
@@ -154,6 +158,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             default:
                 break;
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+//        Log.e("MAIN_ACTIVITY", "onResume: ");
+//        if(IRApplication.mUserApp==null) {
+//            try {
+//                mApp.signIn();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 
     @Override

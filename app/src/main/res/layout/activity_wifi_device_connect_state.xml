@@ -27,6 +27,7 @@
                 android:id="@+id/wifi_connect_state_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
+                android:navigationIcon="@drawable/ic_baseline_arrow_back_24"
                 app:layout_collapseMode="pin" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>

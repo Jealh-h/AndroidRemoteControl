@@ -19,7 +19,7 @@ public class IRApplication extends com.activeandroid.app.Application {
 
     public WebAPIs mWeAPIs = WebAPIs.getInstance(ADDRESS, APP_NAME);
 
-    private UserApp mUserApp;
+    public static UserApp mUserApp;
 
     private SignInCallback mSignInCallback = new SignInCallback() {
         @Override
@@ -64,4 +64,17 @@ public class IRApplication extends com.activeandroid.app.Application {
         }.start();
     }
 
+    public void signIn() {
+        new Thread() {
+            @Override
+            public void run() {
+                mWeAPIs.signIn(IRApplication.this, mSignInCallback);
+                if (null != mUserApp) {
+                    Log.e(TAG, "signIn response : " + mUserApp.getId() + ", " + mUserApp.getToken());
+                } else {
+                    Log.e(TAG, "signIn failed");
+                }
+            }
+        }.start();
+    }
 }
