@@ -89,7 +89,6 @@ public class BrandListActivity extends AppCompatActivity implements View.OnClick
         loading.setVisibility(View.VISIBLE);
         fallback.setVisibility(View.GONE);
         ListBrandsCallback listBrandsCallback = new ListBrandsCallback() {
-
             @Override
             public void onListBrandsSuccess(List<Brand> list) {
                 loading.setVisibility(View.GONE);
