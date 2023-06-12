@@ -13,6 +13,10 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        dataBinding {
+            enabled true;
+        }
     }
 
     buildTypes {
@@ -28,6 +32,14 @@ android {
     buildFeatures {
         viewBinding true
     }
+
+    repositories {
+        flatDir {
+            dirs 'libs'
+        }
+        mavenCentral()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+    }
 }
 
 dependencies {
@@ -39,7 +51,16 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
     implementation 'androidx.navigation:navigation-fragment:2.3.0'
     implementation 'androidx.navigation:navigation-ui:2.3.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'com.michaelpardo:activeandroid:3.1.0-SNAPSHOT'
+    compile 'com.google.android:flexbox:0.2.6'
     testImplementation 'junit:junit:4.+'
+    androidTestImplementation 'androidx.test:core:1.5.0'
+    androidTestImplementation 'androidx.test:rules:1.5.0'
+    androidTestImplementation 'androidx.test:runner:1.4.0'
+    androidTestCompile 'com.jayway.android.robotium:robotium-solo:5.4.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    compile(name: 'web-api-android-1.2.7', ext: 'aar')
 }
